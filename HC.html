@@ -46,9 +46,9 @@ const exactFloor=v=>upper(txt(v).replace(/\s+/g,' '));
 const targetValues=r=>Object.values(r||{}), targetBrand=r=>txt(targetValues(r)[4]), targetFloor=r=>txt(targetValues(r)[5]), targetFullHc=r=>num(targetValues(r)[6]);
 const date=v=>{const s=txt(v);if(!s||s==='-')return null;let d=new Date(s);if(!isNaN(d))return d;const m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);if(!m)return null;const y=+m[3]<100?2000+(+m[3]):+m[3];d=new Date(y,+m[2]-1,+m[1]);return isNaN(d)?null:d};
 function csvEscapeValue(v){const s=String(v??'');return /[",\r\n]/.test(s)?`"${s.replace(/"/g,'""')}"`:s}
-function gvizToCsv(table){const cols=(table?.cols||[]).map(c=>c?.label||'');const lines=[cols.map(csvEscapeValue).join(',')];(table?.rows||[]).forEach(row=>lines.push(cols.map((_,i)=>{const c=row?.c?.[i];return csvEscapeValue(c?(c.f??c.v??''):'')}).join(',')));return lines.join('\n')}
-function loadJsonp(sheet){return new Promise((resolve,reject)=>{const id=`hc_${Date.now()}_${Math.floor(Math.random()*1e6)}`,script=document.createElement('script'),timer=setTimeout(fail,15000);function clean(){clearTimeout(timer);script.remove();try{delete window[id]}catch(_){window[id]=undefined}}function fail(){clean();reject(new Error(`${sheet} unavailable`))}window[id]=r=>{clean();resolve(gvizToCsv(r.table))};script.onerror=fail;script.src=`https://docs.google.com/spreadsheets/d/${DOC}/gviz/tq?sheet=${encodeURIComponent(sheet)}&tqx=${encodeURIComponent(`out:json;responseHandler:${id}`)}`;document.body.append(script)})}
-async function loadCsv(sheet){let raw;try{const r=await fetch(url(sheet));if(!r.ok)throw new Error('fetch failed');raw=await r.text()}catch(_){raw=await loadJsonp(sheet)}return new Promise((resolve,reject)=>Papa.parse(raw,{header:true,skipEmptyLines:true,complete:x=>resolve(x.data),error:reject}));}
+function gvizToRows(table){const seen=new Map();const headers=(table?.cols||[]).map((c,i)=>{const base=txt(c?.label)||`Column ${i+1}`,count=(seen.get(base)||0)+1;seen.set(base,count);return count===1?base:`${base} ${count}`});return(table?.rows||[]).map(row=>{const values=headers.map((header,i)=>{const cell=row?.c?.[i];return[header,cell?(cell.f??cell.v??''):'']});return Object.fromEntries(values)})}
+function loadJsonp(sheet){return new Promise((resolve,reject)=>{const id=`hc_${Date.now()}_${Math.floor(Math.random()*1e6)}`,script=document.createElement('script'),timer=setTimeout(fail,15000);function clean(){clearTimeout(timer);script.remove();try{delete window[id]}catch(_){window[id]=undefined}}function fail(){clean();reject(new Error(`${sheet} unavailable`))}window[id]=r=>{clean();resolve(gvizToRows(r.table))};script.onerror=fail;script.src=`https://docs.google.com/spreadsheets/d/${DOC}/gviz/tq?sheet=${encodeURIComponent(sheet)}&tqx=${encodeURIComponent(`out:json;responseHandler:${id}`)}`;document.body.append(script)})}
+async function loadCsv(sheet){try{const r=await fetch(url(sheet));if(!r.ok)throw new Error('fetch failed');const raw=await r.text();return await new Promise((resolve,reject)=>Papa.parse(raw,{header:true,skipEmptyLines:true,complete:x=>resolve(x.data),error:reject}))}catch(_){return loadJsonp(sheet)}}
 function candidateBrand(r){return field(r,['brand'])||txt(Object.values(r)[0])}
 function candidatePosition(r){return field(r,['position'])||txt(Object.values(r)[4])}
 function candidateStatus(r){return field(r,['status'])||txt(Object.values(r)[23])}
@@ -57,9 +57,10 @@ function candidateOnboard(r){return field(r,['on board date','onboard date'])||t
 function candidateFloor(r){return field(r,['offer place','offered floor','floor','center'])||txt(Object.values(r)[18])}
 function candidateInterviewer(r){return field(r,['interview by','interviewer'])||txt(Object.values(r)[25])}
 function candidateLeadDate(r){return txt(Object.values(r)[35])}
-// Sheet1 has duplicate "Offer Date" labels.  PapaParse drops the later duplicate,
-// so a positional lookup can accidentally read "Onboard Date" instead.
-function candidateOfferDate(r){return field(r,['offer date'])}
+// Sheet1 has two "Offer Date" columns.  The first (column 30) is blank for
+// current records; use the later populated Offer Date (column 36).  The named
+// lookup remains as a fallback for source-layout changes.
+function candidateOfferDate(r){const values=Object.values(r||{}),actual=txt(values[36]);if(actual)return actual;const matches=Object.entries(r||{}).filter(([header])=>/^offerdate\d*$/.test(key(header))).map(([,value])=>txt(value)).filter(Boolean);return matches[matches.length-1]||''}
 function candidateOnboardStatus(r){return txt(Object.values(r)[27])}
 function validOffer(r){const status=upper(candidateStatus(r)),onboardStatus=upper(candidateOnboardStatus(r));return !!date(candidateOfferDate(r))&&!/REJECT|WITHDRAW|NO\s*SHOW|NOSHOW/.test(`${status} ${onboardStatus}`)}
 function isOnboard(r){return validOffer(r)&&upper(candidateOnboardStatus(r)).includes('ONBOARD')}
