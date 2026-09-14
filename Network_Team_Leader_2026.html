@@ -915,6 +915,7 @@
             POSITION: 4,
             SOURCE: 5,
             STAFF_ID: 9,
+            REFERRER_NAME: 10,
             STAFF_NAME: 10,
             REFERRER_FLOOR: 11,
             RJNJ: 12,
@@ -1647,6 +1648,18 @@
             return safeTrim(row?.[headersS1[idx]]);
         }
 
+        // Sheet1 column K, "Referrer Staff Name", is the authoritative
+        // introducer field for every Network Team referral calculation.
+        function getS1ReferrerName(row) {
+            return getS1Value(row, S1_IDX.REFERRER_NAME);
+        }
+
+        function isReferredByMember(row, member) {
+            const referrerName = normalizeKey(getS1ReferrerName(row));
+            const memberName = normalizeKey(member?.therapist);
+            return Boolean(referrerName && memberName && referrerName === memberName);
+        }
+
         function getScopedLeaders(filtersOverride = null) {
             const filters = getFilterValues(filtersOverride || {});
 
@@ -1682,17 +1695,16 @@
             ].join('|');
         }
 
-        function getReferralRowsByReferrerStaffId(staffId) {
-            const target = safeTrim(staffId);
+        function getReferralRowsByReferrerName(referrerName) {
+            const target = normalizeKey(referrerName);
             if (!target) return [];
-            return dataS1.filter(row => getS1Value(row, S1_IDX.STAFF_ID) === target);
+            return dataS1.filter(row => normalizeKey(getS1ReferrerName(row)) === target);
         }
 
         function getMemberFirstLevelOnboardRows(member, fibRange) {
-            const staffNo = safeTrim(member?.staffNo);
-            if (!staffNo || !fibRange) return [];
+            if (!member?.therapist || !fibRange) return [];
             return dataS1.filter(row => {
-                if (getS1Value(row, S1_IDX.STAFF_ID) !== staffNo) return false;
+                if (!isReferredByMember(row, member)) return false;
                 if (!isOnboard(row)) return false;
                 if (!isSameBrandReferral(member, row)) return false;
                 if (isBeautySpecialistPosition(row)) return false;
@@ -1727,9 +1739,9 @@
                 }
             });
 
-            const firstLevelReferrerIds = Array.from(new Set(
+            const firstLevelReferrerNames = Array.from(new Set(
                 firstLevelRows
-                    .map(row => getS1Value(row, S1_IDX.HIRED_STAFF_NUMBER))
+                    .map(row => getS1Value(row, S1_IDX.NAME))
                     .filter(Boolean)
             ));
 
@@ -1737,8 +1749,8 @@
             const secondLevelOnboardDetailMap = new Map();
             let activatedReferrerCount = 0;
 
-            firstLevelReferrerIds.forEach(staffId => {
-                const rows = getReferralRowsByReferrerStaffId(staffId).filter(row =>
+            firstLevelReferrerNames.forEach(referrerName => {
+                const rows = getReferralRowsByReferrerName(referrerName).filter(row =>
                     isSameBrandReferral(member, row) && !isBeautySpecialistPosition(row)
                 );
                 if (rows.length) {
@@ -1752,9 +1764,10 @@
             firstLevelRows.forEach(firstLevelRow => {
                 const firstLevelKey = getRowIdentity(firstLevelRow);
                 const hiredStaffId = getS1Value(firstLevelRow, S1_IDX.HIRED_STAFF_NUMBER);
-                if (!hiredStaffId) return;
+                const referrerName = getS1Value(firstLevelRow, S1_IDX.NAME);
+                if (!referrerName) return;
 
-                const referralRows = getReferralRowsByReferrerStaffId(hiredStaffId).filter(row =>
+                const referralRows = getReferralRowsByReferrerName(referrerName).filter(row =>
                     isSameBrandReferral(member, row) && !isBeautySpecialistPosition(row)
                 );
                 if (referralRows.length) {
@@ -1847,7 +1860,7 @@
                 ...member,
                 firstLevelRows,
                 firstLevelOnboard: firstLevelRows.length,
-                firstLevelReferrerIds,
+                firstLevelReferrerNames,
                 firstLevelDetails,
                 activatedReferrerCount,
                 secondLevelRows,
@@ -1965,11 +1978,10 @@
         }
 
         function getMemberReferralRows(member, range) {
-            const staffNo = safeTrim(member.staffNo);
-            if (!staffNo) return [];
+            if (!member?.therapist) return [];
 
             return dataS1.filter(row => {
-                if (getS1Value(row, S1_IDX.STAFF_ID) !== staffNo) return false;
+                if (!isReferredByMember(row, member)) return false;
                 const leadDate = parseDate(row?.[headersS1[S1_IDX.LEAD_DATE]]);
                 if (!leadDate || !range) return false;
                 if (!(leadDate >= range.start && leadDate <= range.end)) return false;
@@ -1985,7 +1997,7 @@
             leaders.forEach(leader => {
                 leader.memberStats.forEach(member => {
                     const memberOfferRows = dataS1.filter(row => {
-                        if (getS1Value(row, S1_IDX.STAFF_ID) !== safeTrim(member.staffNo)) return false;
+                        if (!isReferredByMember(row, member)) return false;
                         return isDateWithinOptionalRange(parseDate(getS1Value(row, S1_IDX.OFFER_DATE)), offerRange);
                     });
                     const offerRows = memberOfferRows.filter(isCountedOffer);
@@ -2066,7 +2078,7 @@
                     const detailRowMap = new Map(member.rows.map(row => [getRowIdentity(row), row]));
                     if (offerDateRange) {
                         dataS1.forEach(row => {
-                            if (getS1Value(row, S1_IDX.STAFF_ID) !== safeTrim(member.staffNo)) return;
+                            if (!isReferredByMember(row, member)) return;
                             const offerDate = parseDate(getS1Value(row, S1_IDX.OFFER_DATE));
                             if (isDateWithinOptionalRange(offerDate, offerDateRange)) {
                                 detailRowMap.set(getRowIdentity(row), row);
@@ -2075,7 +2087,7 @@
                     }
                     // Upcoming On Board is intentionally independent of Lead Date and Offer Date filters.
                     dataS1.forEach(row => {
-                        if (getS1Value(row, S1_IDX.STAFF_ID) !== safeTrim(member.staffNo)) return;
+                        if (!isReferredByMember(row, member)) return;
                         if (isUpcomingOnboard(row)) detailRowMap.set(getRowIdentity(row), row);
                     });
                     detailRowMap.forEach(row => {
@@ -2678,10 +2690,10 @@
         }
 
         function getLeaderUndertrainingRows(leader, qualifiedOnSalesStaffIds = getQualifiedOnSalesStaffIds()) {
-            const memberByStaffId = new Map(
+            const memberByReferrerName = new Map(
                 (leader.memberStats || leader.members || [])
-                    .filter(member => safeTrim(member.staffNo))
-                    .map(member => [safeTrim(member.staffNo), member])
+                    .filter(member => normalizeKey(member.therapist))
+                    .map(member => [normalizeKey(member.therapist), member])
             );
             const undertrainingByStaffId = new Map();
 
@@ -2692,24 +2704,44 @@
 
                 const sourceRow = dataS1.find(source =>
                     safeTrim(getS1Value(source, S1_IDX.HIRED_STAFF_NUMBER)) === staffId &&
-                    memberByStaffId.has(safeTrim(getS1Value(source, S1_IDX.STAFF_ID)))
+                    memberByReferrerName.has(normalizeKey(getS1ReferrerName(source)))
                 );
                 if (!sourceRow) return;
 
-                const referrerStaffId = safeTrim(getS1Value(sourceRow, S1_IDX.STAFF_ID));
-                const member = memberByStaffId.get(referrerStaffId);
+                const referrerName = getS1ReferrerName(sourceRow);
+                const member = memberByReferrerName.get(normalizeKey(referrerName));
                 undertrainingByStaffId.set(staffId, {
                     staffId,
                     name: getUndertrainingValue(row, UNDERTRAINING_IDX.NAME) || '-',
                     position: position || '-',
                     floor: getUndertrainingValue(row, UNDERTRAINING_IDX.FLOOR) || '-',
-                    referrerName: getS1Value(sourceRow, S1_IDX.STAFF_NAME) || member?.therapist || '-',
-                    referrerStaffId,
+                    referrerName: referrerName || member?.therapist || '-',
+                    referrerStaffId: safeTrim(member?.staffNo) || '-',
                     referrerFloor: getS1Value(sourceRow, S1_IDX.REFERRER_FLOOR) || member?.center || '-'
                 });
             });
 
             return Array.from(undertrainingByStaffId.values()).sort((a, b) => a.name.localeCompare(b.name, 'zh-HK'));
+        }
+
+        function getLeaderUpcomingOnboardRows(leader) {
+            const memberReferrerNames = new Set(
+                (leader.memberStats || leader.members || [])
+                    .map(member => normalizeKey(member.therapist))
+                    .filter(Boolean)
+            );
+            const rowsByCandidate = new Map();
+
+            dataS1.forEach((row, index) => {
+                const referrerName = normalizeKey(getS1ReferrerName(row));
+                if (!memberReferrerNames.has(referrerName) || !isUpcomingOnboard(row) || isBeautySpecialistPosition(row)) return;
+
+                const candidateKey = getReferralCandidateIdentity(row) || `upcoming-${index}`;
+                if (rowsByCandidate.has(candidateKey)) return;
+                rowsByCandidate.set(candidateKey, row);
+            });
+
+            return Array.from(rowsByCandidate.values());
         }
 
         function closeLeaderUndertrainingDetails() {
@@ -2757,12 +2789,15 @@
                 const brandLabel = safeTrim(stat.brand) || (leader.brands || [])[0] || '-';
                 const floorLabel = safeTrim(stat.center) || (leader.centers || [])[0] || '-';
                 const selfRows = selfMember
-                    ? dataS1.filter(row => getS1Value(row, S1_IDX.STAFF_ID) === safeTrim(selfMember.staffNo) && isLeaderSelfEligibleReferral(selfMember, row))
+                    ? dataS1.filter(row => isReferredByMember(row, selfMember) && isLeaderSelfEligibleReferral(selfMember, row))
                     : [];
                 const lead = selfRows.filter(row => isDateWithinRange(parseDate(getS1Value(row, S1_IDX.LEAD_DATE)), leadRange)).length;
                 const offer = selfRows.filter(row => isCountedOffer(row) && isDateWithinOptionalRange(parseDate(getS1Value(row, S1_IDX.OFFER_DATE)), offerRange)).length;
                 const onboard = selfRows.filter(row => isOnboard(row) && isDateWithinOptionalRange(parseDate(getRecordedOnboardDate(row)), onboardRange)).length;
-                const upcomingOnboard = selfRows.filter(row => isUpcomingOnboard(row) && isDateWithinOptionalRange(parseDate(getRecordedOnboardDate(row)), onboardRange)).length;
+                // Same attribution as the Brand Summary: the candidate belongs to the
+                // network team of the Excel referrer, and future onboarding is not
+                // restricted by the selected historical On Board date range.
+                const upcomingOnboard = getLeaderUpcomingOnboardRows(leader).length;
                 const memberStaffIds = new Set((leader.memberStats || leader.members || []).map(member => safeTrim(member.staffNo)).filter(Boolean));
                 const onSalesHc = Array.from(memberStaffIds).filter(staffId => qualifiedOnSalesStaffIds.has(staffId)).length;
                 const undertraining = getLeaderUndertrainingRows(leader, qualifiedOnSalesStaffIds).length;
@@ -3004,16 +3039,16 @@
         function getBrandFilterOfferSummaryRows(brand, leaders = getFilteredLeaders()) {
             const normalizedBrand = normalizeBrand(brand);
             const offerRange = getSelectedOfferDateRange();
-            const networkStaffIds = new Set();
+            const networkReferrerNames = new Set();
             leaders.forEach(leader => leader.memberStats.forEach(member => {
-                if (member.brandKey === normalizedBrand) networkStaffIds.add(safeTrim(member.staffNo));
+                if (member.brandKey === normalizedBrand) networkReferrerNames.add(normalizeKey(member.therapist));
             }));
             const rows = [];
             const seen = new Set();
             dataS1.forEach(row => {
                 if (normalizeBrand(getS1Value(row, S1_IDX.BRAND)) !== normalizedBrand) return;
                 const source = safeTrim(getS1Value(row, S1_IDX.SOURCE)).toUpperCase();
-                const isNetworkOffer = networkStaffIds.has(safeTrim(getS1Value(row, S1_IDX.STAFF_ID)));
+                const isNetworkOffer = networkReferrerNames.has(normalizeKey(getS1ReferrerName(row)));
                 const isHrOffer = source.includes('HR');
                 if (!isNetworkOffer && !isHrOffer) return;
                 if (!isUpcomingSourceMatch(row)) return;
@@ -3246,7 +3281,7 @@
                 leader.memberStats.forEach(member => {
                     if (member.brandKey !== brand) return;
                     const sourceRows = offerRange
-                        ? dataS1.filter(row => getS1Value(row, S1_IDX.STAFF_ID) === safeTrim(member.staffNo) && isDateWithinOptionalRange(parseDate(getS1Value(row, S1_IDX.OFFER_DATE)), offerRange))
+                        ? dataS1.filter(row => isReferredByMember(row, member) && isDateWithinOptionalRange(parseDate(getS1Value(row, S1_IDX.OFFER_DATE)), offerRange))
                         : member.rows;
                     sourceRows.forEach(row => {
                         const isMatch = type === 'UPCOMING' ? isUpcomingOnboard(row) : isCountedOffer(row);
