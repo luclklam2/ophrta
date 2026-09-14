@@ -57,7 +57,9 @@ function candidateOnboard(r){return field(r,['on board date','onboard date'])||t
 function candidateFloor(r){return field(r,['offer place','offered floor','floor','center'])||txt(Object.values(r)[18])}
 function candidateInterviewer(r){return field(r,['interview by','interviewer'])||txt(Object.values(r)[25])}
 function candidateLeadDate(r){return txt(Object.values(r)[35])}
-function candidateOfferDate(r){return txt(Object.values(r)[36])}
+// Sheet1 has duplicate "Offer Date" labels.  PapaParse drops the later duplicate,
+// so a positional lookup can accidentally read "Onboard Date" instead.
+function candidateOfferDate(r){return field(r,['offer date'])}
 function candidateOnboardStatus(r){return txt(Object.values(r)[27])}
 function validOffer(r){const status=upper(candidateStatus(r)),onboardStatus=upper(candidateOnboardStatus(r));return !!date(candidateOfferDate(r))&&!/REJECT|WITHDRAW|NO\s*SHOW|NOSHOW/.test(`${status} ${onboardStatus}`)}
 function isOnboard(r){return validOffer(r)&&upper(candidateOnboardStatus(r)).includes('ONBOARD')}
