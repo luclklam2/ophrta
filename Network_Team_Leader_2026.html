@@ -152,6 +152,20 @@
             background: rgba(248, 250, 252, 0.9);
         }
 
+        #leaderOnlyTable {
+            table-layout: fixed;
+        }
+
+        #leaderOnlyTable th,
+        #leaderOnlyTable td {
+            font-size: 0.78rem;
+        }
+
+        #leaderOnlyTable th {
+            line-height: 1.15;
+            white-space: normal;
+        }
+
         input, select {
             font-size: 0.94rem;
             line-height: 1.25;
@@ -459,7 +473,7 @@
                     <p class="text-xs uppercase tracking-[0.16em] font-black text-sky-500">By Network Team Leader</p>
                     <h2 class="text-2xl md:text-3xl font-black text-slate-900 leading-tight">Network Team Leader</h2>
                 </div>
-                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 2xl:items-end">
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 2xl:items-end">
                     <div class="min-w-0">
                         <label for="leaderOnlyStart" class="block mb-1 text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date From</label>
                         <input id="leaderOnlyStart" type="date" class="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none">
@@ -467,6 +481,22 @@
                     <div class="min-w-0">
                         <label for="leaderOnlyEnd" class="block mb-1 text-xs uppercase tracking-[0.16em] font-black text-slate-500">Lead Date To</label>
                         <input id="leaderOnlyEnd" type="date" class="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none">
+                    </div>
+                    <div class="min-w-0">
+                        <label for="leaderOnlyOfferStart" class="block mb-1 text-xs uppercase tracking-[0.16em] font-black text-slate-500">Offer Date From</label>
+                        <input id="leaderOnlyOfferStart" type="date" class="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none">
+                    </div>
+                    <div class="min-w-0">
+                        <label for="leaderOnlyOfferEnd" class="block mb-1 text-xs uppercase tracking-[0.16em] font-black text-slate-500">Offer Date To</label>
+                        <input id="leaderOnlyOfferEnd" type="date" class="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none">
+                    </div>
+                    <div class="min-w-0">
+                        <label for="leaderOnlyOnboardStart" class="block mb-1 text-xs uppercase tracking-[0.16em] font-black text-slate-500">On Board Date From</label>
+                        <input id="leaderOnlyOnboardStart" type="date" class="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none">
+                    </div>
+                    <div class="min-w-0">
+                        <label for="leaderOnlyOnboardEnd" class="block mb-1 text-xs uppercase tracking-[0.16em] font-black text-slate-500">On Board Date To</label>
+                        <input id="leaderOnlyOnboardEnd" type="date" class="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none">
                     </div>
                     <div class="min-w-0">
                         <label for="leaderOnlyBrandFilter" class="block mb-1 text-xs uppercase tracking-[0.16em] font-black text-slate-500">Brand</label>
@@ -480,34 +510,59 @@
                             <option value="">All Floor</option>
                         </select>
                     </div>
-                    <div class="min-w-0">
-                        <label for="leaderGapFilter" class="block mb-1 text-xs uppercase tracking-[0.16em] font-black text-slate-500">Gap</label>
-                        <select id="leaderGapFilter" class="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none">
-                            <option value="">All Gap</option>
-                            <option value="0">0</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                        </select>
-                    </div>
-                    <p id="leaderOnlyMeta" class="rounded-xl bg-slate-50 px-3 py-2 text-sm font-bold leading-snug text-slate-500 sm:col-span-2 lg:col-span-3 2xl:col-span-5 2xl:text-right">-</p>
+                    <p id="leaderOnlyMeta" class="rounded-xl bg-slate-50 px-3 py-2 text-sm font-bold leading-snug text-slate-500 sm:col-span-2 lg:col-span-3 2xl:col-span-4 2xl:text-right">-</p>
                 </div>
             </div>
             <div class="table-shell">
                 <div class="table-wrap">
-                    <table class="w-full min-w-[900px] border-collapse">
+                    <table id="leaderOnlyTable" class="w-full min-w-[880px] border-collapse">
                         <thead class="bg-sky-50 text-sky-950 text-xs uppercase tracking-[0.14em] font-black">
                             <tr>
-                                <th class="px-5 py-4 text-left">Network Team Leader</th>
-                                <th class="px-5 py-4 text-left">Brand</th>
-                                <th class="px-5 py-4 text-left">Floor</th>
-                                <th class="px-4 py-4 text-center">Lead</th>
-                                <th class="px-4 py-4 text-center">Offer</th>
-                                <th class="px-4 py-4 text-center">On Board</th>
-                                <th class="px-4 py-4 text-center">Gap</th>
+                                <th class="px-2 py-3 text-left">Floor</th>
+                                <th class="px-2 py-3 text-left">Network Team Leader</th>
+                                <th class="px-2 py-3 text-center">Position</th>
+                                <th class="px-2 py-3 text-center">On Sales HC</th>
+                                <th class="px-2 py-3 text-center">Lead</th>
+                                <th class="px-2 py-3 text-center">Offer</th>
+                                <th class="px-2 py-3 text-center">On Board</th>
+                                <th class="px-2 py-3 text-center">Under-training</th>
+                                <th class="px-2 py-3 text-center">Upcoming On Board</th>
+                                <th class="px-2 py-3 text-center">Actual Gap</th>
+                                <th class="px-2 py-3 text-center">Ideal Gap</th>
                             </tr>
                         </thead>
                         <tbody id="leaderOnlyTableBody" class="divide-y divide-slate-100 bg-white/70"></tbody>
                     </table>
+                </div>
+            </div>
+            <p class="mt-3 rounded-xl bg-slate-50 px-4 py-3 text-xs font-bold leading-relaxed text-slate-600">
+                <span class="font-black text-rose-700">Actual Gap</span> = On Sales HC − 6 &nbsp;•&nbsp;
+                <span class="font-black text-emerald-700">Ideal Gap</span> = On Sales HC + Under-training + Upcoming On Board − 6
+            </p>
+            <div id="leaderUndertrainingDetails" class="hidden mt-4 rounded-2xl border border-violet-200 bg-violet-50/60 p-4">
+                <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-black uppercase tracking-[0.14em] text-violet-600">Under-training details</p>
+                        <h3 id="leaderUndertrainingDetailsTitle" class="text-lg font-black text-slate-900">-</h3>
+                    </div>
+                    <button type="button" onclick="closeLeaderUndertrainingDetails()" class="pill-button min-h-0 px-3 py-2 text-xs text-slate-600">Close</button>
+                </div>
+                <div class="table-shell">
+                    <div class="table-wrap">
+                        <table class="w-full min-w-[850px] border-collapse">
+                            <thead class="bg-white text-slate-700 text-xs font-black">
+                                <tr>
+                                    <th class="px-4 py-3 text-left">New Staff ID</th>
+                                    <th class="px-4 py-3 text-left">New Staff</th>
+                                    <th class="px-4 py-3 text-left">Position</th>
+                                    <th class="px-4 py-3 text-left">Floor</th>
+                                    <th class="px-4 py-3 text-left">Excel Referrer</th>
+                                    <th class="px-4 py-3 text-left">Referrer Staff ID</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderUndertrainingDetailsBody" class="divide-y divide-slate-100 bg-white/80"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1357,6 +1412,15 @@
             const endLimit = new Date(end.getTime());
             endLimit.setHours(23, 59, 59, 999);
             return { start, end: endLimit };
+        }
+
+        function getLeaderOnlyOptionalDateRange(startId, endId) {
+            const start = parseDate(document.getElementById(startId)?.value);
+            const end = parseDate(document.getElementById(endId)?.value);
+            if (!start && !end) return null;
+            const endLimit = end ? new Date(end.getTime()) : null;
+            if (endLimit) endLimit.setHours(23, 59, 59, 999);
+            return { start: start || null, end: endLimit };
         }
 
         function getFibDateRange() {
@@ -2440,7 +2504,7 @@
             ];
 
             headerRow.innerHTML = headers.map(({ key, label, align }) => `
-                <th class="${align === 'left' ? 'px-5 py-4 text-left' : 'px-4 py-4 text-center'}">
+                <th class="${align === 'left' ? 'px-2 py-3 text-left' : 'px-2 py-3 text-center'}">
                     <button type="button" onclick="toggleFloorSort('${key}')" class="inline-flex items-center ${align === 'left' ? 'gap-2' : 'justify-center gap-2'} transition hover:text-violet-700">
                         <span>${label}</span>
                         ${getFloorSortIndicator(key)}
@@ -2492,13 +2556,17 @@
             if (!headerRow) return;
 
             const headers = [
-                { key: 'networkTeam', label: 'Network Team Leader', align: 'left' },
-                { key: 'brandLabel', label: 'Brand', align: 'left' },
                 { key: 'floorLabel', label: 'Floor', align: 'left' },
+                { key: 'networkTeam', label: 'Network Team Leader', align: 'left' },
+                { key: 'position', label: 'Position', align: 'center' },
+                { key: 'onSalesHc', label: 'On Sales HC', align: 'center' },
                 { key: 'lead', label: 'Lead', align: 'center' },
                 { key: 'offer', label: 'Offer', align: 'center' },
                 { key: 'onboard', label: 'On Board', align: 'center' },
-                { key: 'gap', label: 'Gap', align: 'center' }
+                { key: 'undertraining', label: 'Under-training', align: 'center' },
+                { key: 'upcomingOnboard', label: 'Upcoming On Board', align: 'center' },
+                { key: 'actualGap', label: 'Actual Gap', align: 'center' },
+                { key: 'idealGap', label: 'Ideal Gap', align: 'center' }
             ];
 
             headerRow.innerHTML = headers.map(({ key, label, align }) => `
@@ -2609,24 +2677,111 @@
             return achievedCandidates.size;
         }
 
+        function getLeaderUndertrainingRows(leader, qualifiedOnSalesStaffIds = getQualifiedOnSalesStaffIds()) {
+            const memberByStaffId = new Map(
+                (leader.memberStats || leader.members || [])
+                    .filter(member => safeTrim(member.staffNo))
+                    .map(member => [safeTrim(member.staffNo), member])
+            );
+            const undertrainingByStaffId = new Map();
+
+            dataUndertraining.forEach(row => {
+                const staffId = getUndertrainingValue(row, UNDERTRAINING_IDX.STAFF_ID);
+                const position = getUndertrainingValue(row, UNDERTRAINING_IDX.POSITION);
+                if (!staffId || qualifiedOnSalesStaffIds.has(staffId) || isBeautySpecialistText(position) || undertrainingByStaffId.has(staffId)) return;
+
+                const sourceRow = dataS1.find(source =>
+                    safeTrim(getS1Value(source, S1_IDX.HIRED_STAFF_NUMBER)) === staffId &&
+                    memberByStaffId.has(safeTrim(getS1Value(source, S1_IDX.STAFF_ID)))
+                );
+                if (!sourceRow) return;
+
+                const referrerStaffId = safeTrim(getS1Value(sourceRow, S1_IDX.STAFF_ID));
+                const member = memberByStaffId.get(referrerStaffId);
+                undertrainingByStaffId.set(staffId, {
+                    staffId,
+                    name: getUndertrainingValue(row, UNDERTRAINING_IDX.NAME) || '-',
+                    position: position || '-',
+                    floor: getUndertrainingValue(row, UNDERTRAINING_IDX.FLOOR) || '-',
+                    referrerName: getS1Value(sourceRow, S1_IDX.STAFF_NAME) || member?.therapist || '-',
+                    referrerStaffId,
+                    referrerFloor: getS1Value(sourceRow, S1_IDX.REFERRER_FLOOR) || member?.center || '-'
+                });
+            });
+
+            return Array.from(undertrainingByStaffId.values()).sort((a, b) => a.name.localeCompare(b.name, 'zh-HK'));
+        }
+
+        function closeLeaderUndertrainingDetails() {
+            document.getElementById('leaderUndertrainingDetails')?.classList.add('hidden');
+        }
+
+        function showLeaderUndertrainingDetails(leaderKey) {
+            const panel = document.getElementById('leaderUndertrainingDetails');
+            const title = document.getElementById('leaderUndertrainingDetailsTitle');
+            const body = document.getElementById('leaderUndertrainingDetailsBody');
+            const leader = leaderDirectory.find(entry => entry.key === leaderKey);
+            if (!panel || !title || !body || !leader) return;
+
+            const rows = getLeaderUndertrainingRows(leader);
+            title.textContent = `${leader.name} · Under-training (${formatNumber(rows.length)})`;
+            body.innerHTML = rows.length ? rows.map(row => `
+                <tr class="text-sm font-bold text-slate-700">
+                    <td class="px-4 py-3 data-font">${escapeHtml(row.staffId)}</td>
+                    <td class="px-4 py-3 font-black text-slate-900">${escapeHtml(row.name)}</td>
+                    <td class="px-4 py-3">${escapeHtml(row.position)}</td>
+                    <td class="px-4 py-3">${escapeHtml(row.floor)}</td>
+                    <td class="px-4 py-3">${escapeHtml(row.referrerName)}</td>
+                    <td class="px-4 py-3 data-font">${escapeHtml(row.referrerStaffId)}</td>
+                </tr>
+            `).join('') : '<tr><td colspan="6" class="px-4 py-7 text-center text-sm font-black text-slate-400">No matched Under-training staff for this network team.</td></tr>';
+            panel.classList.remove('hidden');
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
         function buildLeaderOnlyRows(leaders) {
-            const range = getLeaderOnlyDateRange() || getSelectedDateRange();
+            const leadRange = getLeaderOnlyDateRange() || getSelectedDateRange();
+            const offerRange = getLeaderOnlyOptionalDateRange('leaderOnlyOfferStart', 'leaderOnlyOfferEnd') || leadRange;
+            const onboardRange = getLeaderOnlyOptionalDateRange('leaderOnlyOnboardStart', 'leaderOnlyOnboardEnd') || leadRange;
+            const qualifiedOnSalesStaffIds = getQualifiedOnSalesStaffIds();
+            const onSalesPositionByStaffId = new Map(
+                dataOnSales.map(row => [getOnSalesValue(row, ON_SALES_IDX.STAFF_ID), getOnSalesValue(row, ON_SALES_IDX.POSITION)])
+            );
+            const undertrainingPositionByStaffId = new Map(
+                dataUndertraining.map(row => [getUndertrainingValue(row, UNDERTRAINING_IDX.STAFF_ID), getUndertrainingValue(row, UNDERTRAINING_IDX.POSITION)])
+            );
+
             return leaders.map(leader => {
-                const stat = buildLeaderSelfStatForRange(leader, range) || leader.leaderSelfStat || {};
+                const stat = (leader.memberStats || []).find(member => member.isLeaderSelf) || buildLeaderSelfStatForRange(leader, leadRange) || leader.leaderSelfStat || {};
+                const selfMember = stat.staffNo ? stat : (leader.members || []).find(member => normalizeKey(member.therapist) === leader.key);
                 const brandLabel = safeTrim(stat.brand) || (leader.brands || [])[0] || '-';
                 const floorLabel = safeTrim(stat.center) || (leader.centers || [])[0] || '-';
-                const lead = Number(stat.lead) || 0;
-                const offer = Number(stat.offer) || 0;
-                const onboard = Number(stat.onboard) || 0;
+                const selfRows = selfMember
+                    ? dataS1.filter(row => getS1Value(row, S1_IDX.STAFF_ID) === safeTrim(selfMember.staffNo) && isLeaderSelfEligibleReferral(selfMember, row))
+                    : [];
+                const lead = selfRows.filter(row => isDateWithinRange(parseDate(getS1Value(row, S1_IDX.LEAD_DATE)), leadRange)).length;
+                const offer = selfRows.filter(row => isCountedOffer(row) && isDateWithinOptionalRange(parseDate(getS1Value(row, S1_IDX.OFFER_DATE)), offerRange)).length;
+                const onboard = selfRows.filter(row => isOnboard(row) && isDateWithinOptionalRange(parseDate(getRecordedOnboardDate(row)), onboardRange)).length;
+                const upcomingOnboard = selfRows.filter(row => isUpcomingOnboard(row) && isDateWithinOptionalRange(parseDate(getRecordedOnboardDate(row)), onboardRange)).length;
+                const memberStaffIds = new Set((leader.memberStats || leader.members || []).map(member => safeTrim(member.staffNo)).filter(Boolean));
+                const onSalesHc = Array.from(memberStaffIds).filter(staffId => qualifiedOnSalesStaffIds.has(staffId)).length;
+                const undertraining = getLeaderUndertrainingRows(leader, qualifiedOnSalesStaffIds).length;
+                const selfStaffId = safeTrim(selfMember?.staffNo);
+                const position = onSalesPositionByStaffId.get(selfStaffId) || undertrainingPositionByStaffId.get(selfStaffId) || '-';
                 return {
                     key: leader.key,
                     name: leader.name,
                     brandLabel,
                     floorLabel,
+                    position,
+                    onSalesHc,
                     lead,
                     offer,
                     onboard,
-                    gap: Math.max(0, 2 - offer)
+                    undertraining,
+                    upcomingOnboard,
+                    actualGap: onSalesHc - 6,
+                    idealGap: onSalesHc + undertraining + upcomingOnboard - 6
                 };
             });
         }
@@ -2639,15 +2794,25 @@
                     return row.brandLabel || '';
                 case 'floorLabel':
                     return row.floorLabel || '';
+                case 'position':
+                    return row.position || '';
+                case 'onSalesHc':
+                    return row.onSalesHc || 0;
                 case 'lead':
                     return row.lead || 0;
                 case 'offer':
                     return row.offer || 0;
                 case 'onboard':
                     return row.onboard || 0;
-                case 'gap':
+                case 'undertraining':
+                    return row.undertraining || 0;
+                case 'upcomingOnboard':
+                    return row.upcomingOnboard || 0;
+                case 'actualGap':
+                    return row.actualGap || 0;
+                case 'idealGap':
                 default:
-                    return row.gap || 0;
+                    return row.idealGap || 0;
             }
         }
 
@@ -2677,9 +2842,9 @@
         }
 
         function renderLeaderGap(gap) {
-            const rawGap = Math.max(0, Number(gap) || 0);
-            const className = rawGap > 0 ? 'text-rose-600' : 'text-emerald-600';
-            const label = formatNumber(rawGap);
+            const rawGap = Number(gap) || 0;
+            const className = rawGap < 0 ? 'text-rose-600' : rawGap > 0 ? 'text-emerald-600' : 'text-slate-700';
+            const label = rawGap > 0 ? `+${formatNumber(rawGap)}` : formatNumber(rawGap);
             return `<span class="font-black ${className}">${label}</span>`;
         }
 
@@ -2693,12 +2858,10 @@
 
             const brandValue = safeTrim(document.getElementById('leaderOnlyBrandFilter')?.value);
             const floorValue = safeTrim(document.getElementById('leaderOnlyFloorFilter')?.value);
-            const gapValue = safeTrim(document.getElementById('leaderGapFilter')?.value);
 
             let rows = buildLeaderOnlyRows(leaders).filter(row => {
                 if (brandValue && row.brandLabel !== brandValue) return false;
                 if (floorValue && row.floorLabel !== floorValue) return false;
-                if (gapValue !== '' && row.gap !== Number(gapValue)) return false;
                 return true;
             });
 
@@ -2716,24 +2879,51 @@
             });
 
             if (!rows.length) {
-                body.innerHTML = '<tr><td colspan="7" class="px-5 py-8 text-center text-sm font-black text-slate-400">No network team leader records in this selection.</td></tr>';
+                body.innerHTML = '<tr><td colspan="11" class="px-5 py-8 text-center text-sm font-black text-slate-400">No network team leader records in this selection.</td></tr>';
                 return;
             }
+
+            const totals = rows.reduce((sum, row) => ({
+                onSalesHc: sum.onSalesHc + row.onSalesHc,
+                lead: sum.lead + row.lead,
+                offer: sum.offer + row.offer,
+                onboard: sum.onboard + row.onboard,
+                undertraining: sum.undertraining + row.undertraining,
+                upcomingOnboard: sum.upcomingOnboard + row.upcomingOnboard,
+                actualGap: sum.actualGap + row.actualGap,
+                idealGap: sum.idealGap + row.idealGap
+            }), { onSalesHc: 0, lead: 0, offer: 0, onboard: 0, undertraining: 0, upcomingOnboard: 0, actualGap: 0, idealGap: 0 });
 
             body.innerHTML = rows.map(row => {
                 const keyAttr = String(row.key || '').replace(/'/g, "\\'");
                 return `
                     <tr class="clickable-row cursor-pointer" onclick="focusLeader('${keyAttr}')">
-                        <td class="px-5 py-4 font-black text-slate-900">${escapeHtml(row.name || '-')}</td>
-                        <td class="px-5 py-4 font-bold text-slate-600">${escapeHtml(row.brandLabel || '-')}</td>
-                        <td class="px-5 py-4 font-bold text-slate-600">${escapeHtml(row.floorLabel || '-')}</td>
-                        <td class="px-4 py-4 text-center font-black text-indigo-600">${formatNumber(row.lead)}</td>
-                        <td class="px-4 py-4 text-center font-black text-orange-600">${formatNumber(row.offer)}</td>
-                        <td class="px-4 py-4 text-center font-black text-emerald-600">${formatNumber(row.onboard)}</td>
-                        <td class="px-4 py-4 text-center">${renderLeaderGap(row.gap)}</td>
+                        <td class="px-2 py-2.5 font-bold text-slate-600 whitespace-nowrap">${escapeHtml(row.floorLabel || '-')}</td>
+                        <td class="px-2 py-2.5 font-black text-slate-900 whitespace-nowrap">${escapeHtml(row.name || '-')}</td>
+                        <td class="px-2 py-2.5 text-center font-bold text-slate-600">${escapeHtml(row.position || '-')}</td>
+                        <td class="px-2 py-2.5 text-center font-black text-slate-900">${formatNumber(row.onSalesHc)}</td>
+                        <td class="px-2 py-2.5 text-center font-black text-indigo-600">${formatNumber(row.lead)}</td>
+                        <td class="px-2 py-2.5 text-center font-black text-orange-600">${formatNumber(row.offer)}</td>
+                        <td class="px-2 py-2.5 text-center font-black text-emerald-600">${formatNumber(row.onboard)}</td>
+                        <td class="px-2 py-2.5 text-center"><button type="button" onclick="event.stopPropagation(); showLeaderUndertrainingDetails('${keyAttr}')" class="font-black text-violet-600 underline-offset-2 hover:underline" title="Show Under-training staff and Excel referrer">${formatNumber(row.undertraining)}</button></td>
+                        <td class="px-2 py-2.5 text-center font-black text-amber-600">${formatNumber(row.upcomingOnboard)}</td>
+                        <td class="px-2 py-2.5 text-center">${renderLeaderGap(row.actualGap)}</td>
+                        <td class="px-2 py-2.5 text-center">${renderLeaderGap(row.idealGap)}</td>
                     </tr>
                 `;
-            }).join('');
+            }).join('') + `
+                <tr class="bg-sky-50/80 font-black text-slate-900">
+                    <td class="px-2 py-3" colspan="3">Total</td>
+                    <td class="px-2 py-3 text-center">${formatNumber(totals.onSalesHc)}</td>
+                    <td class="px-2 py-3 text-center text-indigo-700">${formatNumber(totals.lead)}</td>
+                    <td class="px-2 py-3 text-center text-orange-700">${formatNumber(totals.offer)}</td>
+                    <td class="px-2 py-3 text-center text-emerald-700">${formatNumber(totals.onboard)}</td>
+                    <td class="px-2 py-3 text-center text-violet-700">${formatNumber(totals.undertraining)}</td>
+                    <td class="px-2 py-3 text-center text-amber-700">${formatNumber(totals.upcomingOnboard)}</td>
+                    <td class="px-2 py-3 text-center">${renderLeaderGap(totals.actualGap)}</td>
+                    <td class="px-2 py-3 text-center">${renderLeaderGap(totals.idealGap)}</td>
+                </tr>
+            `;
         }
 
         function summarizeBreakdowns(leaders) {
@@ -4342,6 +4532,14 @@
             const leaderOnlyEnd = document.getElementById('leaderOnlyEnd');
             if (leaderOnlyStart) leaderOnlyStart.value = formatDateToISO(monthStart);
             if (leaderOnlyEnd) leaderOnlyEnd.value = formatDateToISO(today);
+            const leaderOnlyOfferStart = document.getElementById('leaderOnlyOfferStart');
+            const leaderOnlyOfferEnd = document.getElementById('leaderOnlyOfferEnd');
+            const leaderOnlyOnboardStart = document.getElementById('leaderOnlyOnboardStart');
+            const leaderOnlyOnboardEnd = document.getElementById('leaderOnlyOnboardEnd');
+            if (leaderOnlyOfferStart) leaderOnlyOfferStart.value = formatDateToISO(monthStart);
+            if (leaderOnlyOfferEnd) leaderOnlyOfferEnd.value = formatDateToISO(today);
+            if (leaderOnlyOnboardStart) leaderOnlyOnboardStart.value = formatDateToISO(monthStart);
+            if (leaderOnlyOnboardEnd) leaderOnlyOnboardEnd.value = formatDateToISO(today);
             const fibStudyStart = document.getElementById('fibStudyStart');
             const fibStudyEnd = document.getElementById('fibStudyEnd');
             if (fibStudyStart) fibStudyStart.value = formatDateToISO(monthStart);
@@ -4365,8 +4563,6 @@
             if (leaderOnlyBrandFilter) leaderOnlyBrandFilter.value = displayBrand(DEFAULT_SECTION_BRAND);
             const leaderOnlyFloorFilter = document.getElementById('leaderOnlyFloorFilter');
             if (leaderOnlyFloorFilter) leaderOnlyFloorFilter.value = '';
-            const leaderGapFilter = document.getElementById('leaderGapFilter');
-            if (leaderGapFilter) leaderGapFilter.value = '';
             const fibBrandFilter = document.getElementById('fibBrandFilter');
             if (fibBrandFilter) fibBrandFilter.value = DEFAULT_SECTION_BRAND;
             const fibFloorFilter = document.getElementById('fibFloorFilter');
@@ -4435,12 +4631,20 @@
             const leaderOnlyEnd = document.getElementById('leaderOnlyEnd');
             if (leaderOnlyStart) leaderOnlyStart.value = formatDateToISO(monthStart);
             if (leaderOnlyEnd) leaderOnlyEnd.value = formatDateToISO(today);
+            const leaderOnlyOfferStart = document.getElementById('leaderOnlyOfferStart');
+            const leaderOnlyOfferEnd = document.getElementById('leaderOnlyOfferEnd');
+            const leaderOnlyOnboardStart = document.getElementById('leaderOnlyOnboardStart');
+            const leaderOnlyOnboardEnd = document.getElementById('leaderOnlyOnboardEnd');
+            if (leaderOnlyOfferStart) leaderOnlyOfferStart.value = formatDateToISO(monthStart);
+            if (leaderOnlyOfferEnd) leaderOnlyOfferEnd.value = formatDateToISO(today);
+            if (leaderOnlyOnboardStart) leaderOnlyOnboardStart.value = formatDateToISO(monthStart);
+            if (leaderOnlyOnboardEnd) leaderOnlyOnboardEnd.value = formatDateToISO(today);
             const fibStudyStart = document.getElementById('fibStudyStart');
             const fibStudyEnd = document.getElementById('fibStudyEnd');
             if (fibStudyStart) fibStudyStart.value = formatDateToISO(monthStart);
             if (fibStudyEnd) fibStudyEnd.value = formatDateToISO(today);
 
-            ['studyStart', 'studyEnd', 'offerStudyStart', 'offerStudyEnd', 'upcomingSourceFilter', 'leaderOnlyStart', 'leaderOnlyEnd', 'fibStudyStart', 'fibStudyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'leaderOnlyBrandFilter', 'leaderOnlyFloorFilter', 'leaderGapFilter', 'fibBrandFilter', 'fibFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailPositionFilter', 'detailStatusFilter', 'detailOnboardStatusFilter', 'detailReferralFilter'].forEach(id => {
+            ['studyStart', 'studyEnd', 'offerStudyStart', 'offerStudyEnd', 'upcomingSourceFilter', 'leaderOnlyStart', 'leaderOnlyEnd', 'leaderOnlyOfferStart', 'leaderOnlyOfferEnd', 'leaderOnlyOnboardStart', 'leaderOnlyOnboardEnd', 'fibStudyStart', 'fibStudyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'leaderOnlyBrandFilter', 'leaderOnlyFloorFilter', 'fibBrandFilter', 'fibFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailPositionFilter', 'detailStatusFilter', 'detailOnboardStatusFilter', 'detailReferralFilter'].forEach(id => {
                 document.getElementById(id)?.addEventListener('change', () => {
                     if (id === 'upcomingSourceFilter') closeBrandSummaryDetails();
                     if (id === 'brandFilter' || id === 'centerFilter') updateFilterOptions();
@@ -4480,7 +4684,7 @@
                         currentDetailScope = 'SUMMARY';
                         currentSummaryDetailMode = 'LEAD';
                     }
-                    if (id !== 'leaderFilter' && id !== 'floorSectionBrandFilter' && id !== 'networkSectionBrandFilter' && id !== 'networkSectionFloorFilter' && id !== 'leaderOnlyBrandFilter' && id !== 'leaderOnlyFloorFilter' && id !== 'leaderGapFilter' && id !== 'leaderOnlyStart' && id !== 'leaderOnlyEnd') {
+                    if (id !== 'leaderFilter' && id !== 'floorSectionBrandFilter' && id !== 'networkSectionBrandFilter' && id !== 'networkSectionFloorFilter' && id !== 'leaderOnlyBrandFilter' && id !== 'leaderOnlyFloorFilter' && id !== 'leaderOnlyStart' && id !== 'leaderOnlyEnd' && id !== 'leaderOnlyOfferStart' && id !== 'leaderOnlyOfferEnd' && id !== 'leaderOnlyOnboardStart' && id !== 'leaderOnlyOnboardEnd') {
                         selectedLeaderKey = '';
                     }
                     renderDashboard(false);
