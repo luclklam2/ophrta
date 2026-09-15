@@ -166,6 +166,48 @@
             white-space: normal;
         }
 
+        /* Three visual reading zones: team profile, pipeline, and capacity gap. */
+        #leaderOnlyTable th:nth-child(4),
+        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(4) {
+            border-right: 2px solid #cbd5e1;
+        }
+
+        #leaderOnlyTable th:nth-child(9),
+        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(9) {
+            border-right: 2px solid #cbd5e1;
+        }
+
+        #leaderOnlyTable th:nth-child(n+5):nth-child(-n+9) {
+            background: #fff7ed;
+        }
+
+        #leaderOnlyTable th:nth-child(n+10) {
+            background: #fff1f2;
+        }
+
+        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(n+5):nth-child(-n+9) {
+            background: rgba(255, 251, 235, 0.42);
+        }
+
+        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(n+10) {
+            background: rgba(255, 241, 242, 0.38);
+        }
+
+        /* The Total label spans the first three logical columns, so use its
+           physical cells to keep zone dividers aligned with the data rows. */
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(2),
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(7) {
+            border-right: 2px solid #cbd5e1;
+        }
+
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+3):nth-child(-n+7) {
+            background: rgba(255, 247, 237, 0.72);
+        }
+
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+8) {
+            background: rgba(255, 241, 242, 0.68);
+        }
+
         input, select {
             font-size: 0.94rem;
             line-height: 1.25;
@@ -465,6 +507,10 @@
                     </table>
                 </div>
             </div>
+            <p class="mt-3 flex items-start gap-2 rounded-xl border border-violet-100 bg-violet-50/60 px-4 py-3 text-xs font-semibold leading-relaxed text-slate-600">
+                <span class="mt-0.5 inline-flex shrink-0 rounded-full bg-violet-600 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.12em] text-white">Counting note</span>
+                Floor rows show team assignments by floor. The Total is the number of unique Network Teams, so a team shown on more than one floor is counted once in the Total.
+            </p>
         </section>
 
         <section class="glass-card p-5 md:p-6 mb-8">
@@ -504,14 +550,28 @@
                             <option value="">All Brand</option>
                         </select>
                     </div>
-                    <div class="min-w-0">
+                    <div class="relative min-w-0">
                         <label for="leaderOnlyFloorFilter" class="block mb-1 text-xs uppercase tracking-[0.16em] font-black text-slate-500">Floor</label>
-                        <select id="leaderOnlyFloorFilter" class="w-full rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-bold outline-none">
-                            <option value="">All Floor</option>
-                        </select>
+                        <button id="leaderOnlyFloorFilter" type="button" onclick="toggleLeaderOnlyFloorMenu()" class="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-left text-sm font-bold text-slate-700 outline-none transition hover:border-sky-300">
+                            <span id="leaderOnlyFloorFilterLabel">All Floor</span>
+                            <span class="ml-2 text-slate-400">⌄</span>
+                        </button>
+                        <div id="leaderOnlyFloorMenu" class="hidden absolute right-0 z-30 mt-2 w-[280px] rounded-2xl border border-slate-200 bg-white p-3 shadow-xl shadow-slate-900/10">
+                            <div class="mb-2 flex items-center justify-between gap-3 border-b border-slate-100 pb-2">
+                                <span class="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Select floor</span>
+                                <button type="button" onclick="clearLeaderOnlyFloorFilters()" class="text-xs font-black text-sky-700 hover:underline">Clear</button>
+                            </div>
+                            <div id="leaderOnlyFloorFilterOptions" class="max-h-56 space-y-1 overflow-y-auto pr-1"></div>
+                            <button type="button" onclick="toggleLeaderOnlyFloorMenu(false)" class="mt-3 w-full rounded-xl bg-slate-900 px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-white">Done</button>
+                        </div>
                     </div>
                     <p id="leaderOnlyMeta" class="rounded-xl bg-slate-50 px-3 py-2 text-sm font-bold leading-snug text-slate-500 sm:col-span-2 lg:col-span-3 2xl:col-span-4 2xl:text-right">-</p>
                 </div>
+            </div>
+            <div class="mb-3 flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.13em]">
+                <span class="rounded-full bg-sky-100 px-3 py-1.5 text-sky-800">Team profile</span>
+                <span class="rounded-full bg-amber-100 px-3 py-1.5 text-amber-800">Pipeline</span>
+                <span class="rounded-full bg-rose-100 px-3 py-1.5 text-rose-800">Capacity gap</span>
             </div>
             <div class="table-shell">
                 <div class="table-wrap">
@@ -967,6 +1027,7 @@
         let networkSortDirection = 'desc';
         let leaderOnlySortKey = 'floorLabel';
         let leaderOnlySortDirection = 'asc';
+        let leaderOnlySelectedFloors = new Set();
         let detailSortKey = 'leadDateObj';
         let detailSortDirection = 'desc';
         const DEFAULT_SECTION_BRAND = 'DERMES';
@@ -2853,12 +2914,12 @@
 
         function updateLeaderOnlyFilterOptions(leaders) {
             const brandSelect = document.getElementById('leaderOnlyBrandFilter');
-            const floorSelect = document.getElementById('leaderOnlyFloorFilter');
-            if (!brandSelect || !floorSelect) return;
+            const floorOptionsContainer = document.getElementById('leaderOnlyFloorFilterOptions');
+            const floorLabel = document.getElementById('leaderOnlyFloorFilterLabel');
+            if (!brandSelect || !floorOptionsContainer || !floorLabel) return;
 
             const rows = buildLeaderOnlyRows(leaders);
             const previousBrand = safeTrim(brandSelect.value);
-            const previousFloor = safeTrim(floorSelect.value);
             const brandOptions = getUniqueSorted(rows.map(row => row.brandLabel).filter(value => value && value !== '-'));
             const defaultBrand = brandOptions.find(value => normalizeBrand(value) === DEFAULT_SECTION_BRAND) || '';
             const selectedBrand = previousBrand || defaultBrand;
@@ -2870,10 +2931,36 @@
             const activeBrand = safeTrim(brandSelect.value);
             const scopedRows = activeBrand ? rows.filter(row => row.brandLabel === activeBrand) : rows;
             const floorOptions = getUniqueSorted(scopedRows.map(row => row.floorLabel).filter(value => value && value !== '-'));
-            floorSelect.innerHTML = ['<option value="">All Floor</option>'].concat(
-                floorOptions.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`)
-            ).join('');
-            if (previousFloor && floorOptions.includes(previousFloor)) floorSelect.value = previousFloor;
+            leaderOnlySelectedFloors = new Set(Array.from(leaderOnlySelectedFloors).filter(value => floorOptions.includes(value)));
+            floorOptionsContainer.innerHTML = floorOptions.map(value => `
+                <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm font-bold text-slate-700 transition hover:bg-sky-50">
+                    <input type="checkbox" value="${escapeHtml(value)}" ${leaderOnlySelectedFloors.has(value) ? 'checked' : ''} onchange="toggleLeaderOnlyFloorFilterValue(this.value, this.checked)" class="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                    <span>${escapeHtml(value)}</span>
+                </label>
+            `).join('') || '<p class="px-2 py-3 text-sm font-bold text-slate-400">No floor available.</p>';
+            floorLabel.textContent = leaderOnlySelectedFloors.size === 0
+                ? 'All Floor'
+                : leaderOnlySelectedFloors.size === 1
+                    ? Array.from(leaderOnlySelectedFloors)[0]
+                    : `${leaderOnlySelectedFloors.size} Floors selected`;
+        }
+
+        function toggleLeaderOnlyFloorMenu(forceOpen) {
+            const menu = document.getElementById('leaderOnlyFloorMenu');
+            if (!menu) return;
+            const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : menu.classList.contains('hidden');
+            menu.classList.toggle('hidden', !shouldOpen);
+        }
+
+        function toggleLeaderOnlyFloorFilterValue(value, checked) {
+            if (checked) leaderOnlySelectedFloors.add(value);
+            else leaderOnlySelectedFloors.delete(value);
+            renderDashboard(false);
+        }
+
+        function clearLeaderOnlyFloorFilters() {
+            leaderOnlySelectedFloors.clear();
+            renderDashboard(false);
         }
 
         function renderLeaderGap(gap) {
@@ -2892,11 +2979,11 @@
             updateLeaderOnlyFilterOptions(leaders);
 
             const brandValue = safeTrim(document.getElementById('leaderOnlyBrandFilter')?.value);
-            const floorValue = safeTrim(document.getElementById('leaderOnlyFloorFilter')?.value);
+            const selectedFloors = leaderOnlySelectedFloors;
 
             let rows = buildLeaderOnlyRows(leaders).filter(row => {
                 if (brandValue && row.brandLabel !== brandValue) return false;
-                if (floorValue && row.floorLabel !== floorValue) return false;
+                if (selectedFloors.size && !selectedFloors.has(row.floorLabel)) return false;
                 return true;
             });
 
@@ -2947,7 +3034,7 @@
                     </tr>
                 `;
             }).join('') + `
-                <tr class="bg-sky-50/80 font-black text-slate-900">
+                <tr class="leader-only-total bg-sky-50/80 font-black text-slate-900">
                     <td class="px-2 py-3" colspan="3">Total</td>
                     <td class="px-2 py-3 text-center">${formatNumber(totals.onSalesHc)}</td>
                     <td class="px-2 py-3 text-center text-indigo-700">${formatNumber(totals.lead)}</td>
@@ -3802,6 +3889,7 @@
             const sortedRows = sortFloorBreakdownRows(filteredRows);
             const total = summarizeFloorBreakdownRows(filteredRows);
             const comparisonTotal = summarizeFloorBreakdownRows(filteredComparisonRows);
+            const totalFloorAssignments = sortedRows.reduce((sum, row) => sum + (row.leaders?.size || 0), 0);
 
             body.innerHTML = sortedRows.map(row => {
                 const comparisonRow = comparisonLookup.get(safeTrim(row.label));
@@ -3826,7 +3914,10 @@
                 <tr class="border-t-2 border-violet-200 bg-violet-50/90 text-sm font-black text-slate-900">
                     <td class="px-5 py-4 text-left uppercase">Total</td>
                     <td class="px-5 py-4 text-left text-slate-700">${Array.from(total.brands).sort((a, b) => a.localeCompare(b, 'en')).join(', ') || '-'}</td>
-                    <td class="px-4 py-4 text-center data-font">${formatNumber(total.leaders.size)}</td>
+                    <td class="px-4 py-3 text-center data-font">
+                        <div>${formatNumber(total.leaders.size)}</div>
+                        <div class="mt-0.5 font-sans text-[10px] font-bold uppercase tracking-[0.08em] text-violet-600">${formatNumber(totalFloorAssignments)} floor assignments</div>
+                    </td>
                     <td class="px-4 py-4 text-center data-font">${formatNumber(total.members)}</td>
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusFloorDetail('', 'LEAD')" class="inline-flex items-baseline justify-center gap-1 font-black text-indigo-700 underline-offset-4 hover:underline">${formatNumber(total.lead)} ${renderDeltaLabel(total.lead - comparisonTotal.lead, 'text-[11px]')}</button></td>
                     <td class="px-4 py-4 text-center data-font"><button type="button" onclick="focusFloorDetail('', 'OFFER')" class="inline-flex items-baseline justify-center gap-1 font-black text-amber-700 underline-offset-4 hover:underline">${formatNumber(total.offer)} ${renderDeltaLabel(total.offer - comparisonTotal.offer, 'text-[11px]')}</button></td>
@@ -4596,8 +4687,8 @@
             if (networkSectionFloorFilter) networkSectionFloorFilter.value = '';
             const leaderOnlyBrandFilter = document.getElementById('leaderOnlyBrandFilter');
             if (leaderOnlyBrandFilter) leaderOnlyBrandFilter.value = displayBrand(DEFAULT_SECTION_BRAND);
-            const leaderOnlyFloorFilter = document.getElementById('leaderOnlyFloorFilter');
-            if (leaderOnlyFloorFilter) leaderOnlyFloorFilter.value = '';
+            leaderOnlySelectedFloors.clear();
+            toggleLeaderOnlyFloorMenu(false);
             const fibBrandFilter = document.getElementById('fibBrandFilter');
             if (fibBrandFilter) fibBrandFilter.value = DEFAULT_SECTION_BRAND;
             const fibFloorFilter = document.getElementById('fibFloorFilter');
@@ -4679,13 +4770,12 @@
             if (fibStudyStart) fibStudyStart.value = formatDateToISO(monthStart);
             if (fibStudyEnd) fibStudyEnd.value = formatDateToISO(today);
 
-            ['studyStart', 'studyEnd', 'offerStudyStart', 'offerStudyEnd', 'upcomingSourceFilter', 'leaderOnlyStart', 'leaderOnlyEnd', 'leaderOnlyOfferStart', 'leaderOnlyOfferEnd', 'leaderOnlyOnboardStart', 'leaderOnlyOnboardEnd', 'fibStudyStart', 'fibStudyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'leaderOnlyBrandFilter', 'leaderOnlyFloorFilter', 'fibBrandFilter', 'fibFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailPositionFilter', 'detailStatusFilter', 'detailOnboardStatusFilter', 'detailReferralFilter'].forEach(id => {
+            ['studyStart', 'studyEnd', 'offerStudyStart', 'offerStudyEnd', 'upcomingSourceFilter', 'leaderOnlyStart', 'leaderOnlyEnd', 'leaderOnlyOfferStart', 'leaderOnlyOfferEnd', 'leaderOnlyOnboardStart', 'leaderOnlyOnboardEnd', 'fibStudyStart', 'fibStudyEnd', 'compareDateFilter', 'brandFilter', 'centerFilter', 'leaderFilter', 'floorSectionBrandFilter', 'networkSectionBrandFilter', 'networkSectionFloorFilter', 'leaderOnlyBrandFilter', 'fibBrandFilter', 'fibFloorFilter', 'detailBrandFilter', 'detailFloorFilter', 'detailPositionFilter', 'detailStatusFilter', 'detailOnboardStatusFilter', 'detailReferralFilter'].forEach(id => {
                 document.getElementById(id)?.addEventListener('change', () => {
                     if (id === 'upcomingSourceFilter') closeBrandSummaryDetails();
                     if (id === 'brandFilter' || id === 'centerFilter') updateFilterOptions();
                     if (id === 'leaderOnlyBrandFilter') {
-                        const floorFilter = document.getElementById('leaderOnlyFloorFilter');
-                        if (floorFilter) floorFilter.value = '';
+                        leaderOnlySelectedFloors.clear();
                     }
                     if (id === 'fibBrandFilter') {
                         const fibFloorFilter = document.getElementById('fibFloorFilter');
