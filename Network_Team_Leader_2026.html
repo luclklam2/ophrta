@@ -1081,7 +1081,7 @@
             NETWORK_TEAM: 5,
             LEADER_FLOOR: 6
         };
-        const ON_SALES_IDX = { BRAND: 0, FLOOR: 1, NAME: 4, STAFF_ID: 5, POSITION: 9, TARGET: 12 };
+        const ON_SALES_IDX = { BRAND: 0, FLOOR: 1, NAME: 4, STAFF_ID: 5, POSITION: 9, TERMINATION_DATE: 10, TARGET: 12 };
         const UNDERTRAINING_IDX = { STAFF_ID: 2, NAME: 3, BRAND: 7, FLOOR: 8, POSITION: 9 };
 
         let headersS1 = [];
@@ -3370,13 +3370,19 @@
             return header ? safeTrim(row?.[header]) : '';
         }
 
+        // Match HC.html Brand Summary: only a blank K-column termination field
+        // qualifies as On Sales. Any recorded termination value is excluded.
+        function isActiveOnSalesStaff(row) {
+            return !getOnSalesValue(row, ON_SALES_IDX.TERMINATION_DATE);
+        }
+
         function getQualifiedOnSalesStaffIds() {
             const staffIds = new Set();
             dataOnSales.forEach(row => {
                 const staffId = getOnSalesValue(row, ON_SALES_IDX.STAFF_ID);
                 const target = Number(getOnSalesValue(row, ON_SALES_IDX.TARGET).replace(/,/g, '')) || 0;
                 const position = getOnSalesValue(row, ON_SALES_IDX.POSITION);
-                if (staffId && target !== 0 && !isBeautySpecialistText(position)) staffIds.add(staffId);
+                if (staffId && target > 0 && !isBeautySpecialistText(position) && isActiveOnSalesStaff(row)) staffIds.add(staffId);
             });
             return staffIds;
         }
