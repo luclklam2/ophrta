@@ -73,10 +73,10 @@ function renderRecruiters(){const body=document.getElementById('recruiterRows'),
 function isUpcoming(r){const d=date(candidateOnboard(r));const today=new Date();today.setHours(23,59,59,999);return upper(candidateStatus(r)).includes('ACCEPT')&&d&&d>today&&!isBs(candidatePosition(r))}
 function sourceOk(r){const x=document.getElementById('source').value;if(x==='ALL')return true;return x==='HR'?candidateSource(r)==='HR':candidateSource(r).includes('OPERATION')||candidateSource(r)==='OP'}
 function brandTarget(brand){return targetRows.filter(r=>upper(targetBrand(r))===upper(brand)).reduce((s,r)=>s+targetFullHc(r),0)}
-// Exclude zero/no Target Sales rows, as well as leavers.  In the current On Sales
-// export Termination Date is column K; use its header when present, with the K
-// position as a fallback so the rule remains valid if the header is renamed.
-function hasTerminationDate(r){const named=field(r,['termination date']);const columnK=targetValues(r)[10];return !!(date(named)||date(columnK))}
+// Exclude zero/no Target Sales rows, as well as leavers. The live On Sales
+// sheet calls column K "Termination Effective Date"; check that exact header
+// first, then retain the legacy name and position as safeguards.
+function hasTerminationDate(r){const named=field(r,['termination effective date','termination date','last employment day']);const columnK=targetValues(r)[10];return !!(date(named)||date(columnK))}
 function onSalesIds(){const ids=new Set();onSalesRows.forEach(r=>{const id=field(r,['therapist staff no','staff id']);const target=num(field(r,['target sales full month','target']));if(id&&target>0&&!hasTerminationDate(r)&&!isBs(field(r,['position'])))ids.add(id)});return ids}
 function onSales(brand,ids){const set=new Set();onSalesRows.forEach(r=>{const id=field(r,['therapist staff no','staff id']);if(upper(field(r,['brand']))===upper(brand)&&ids.has(id))set.add(id)});return set.size}
 function training(brand,ids){const set=new Set();trainingRows.forEach(r=>{const id=field(r,['staff no','staff id']);if(upper(field(r,['brand']))===upper(brand)&&id&&!ids.has(id)&&!isBs(field(r,['position'])))set.add(id)});return set.size}
