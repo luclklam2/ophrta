@@ -1082,7 +1082,7 @@
             LEADER_FLOOR: 6
         };
         const ON_SALES_IDX = { BRAND: 0, FLOOR: 1, NAME: 4, STAFF_ID: 5, POSITION: 9, TERMINATION_DATE: 10, TARGET: 12 };
-        const UNDERTRAINING_IDX = { STAFF_ID: 2, NAME: 3, BRAND: 7, FLOOR: 8, POSITION: 9 };
+        const UNDERTRAINING_IDX = { STAFF_ID: 2, NAME: 3, BRAND: 7, FLOOR: 8, POSITION: 9, STATUS: 32 };
 
         let headersS1 = [];
         let dataS1 = [];
@@ -2841,7 +2841,7 @@
             dataUndertraining.forEach(row => {
                 const staffId = getUndertrainingValue(row, UNDERTRAINING_IDX.STAFF_ID);
                 const position = getUndertrainingValue(row, UNDERTRAINING_IDX.POSITION);
-                if (!staffId || qualifiedOnSalesStaffIds.has(staffId) || isBeautySpecialistText(position) || undertrainingByStaffId.has(staffId)) return;
+                if (!isIncludedUndertrainingRow(row, qualifiedOnSalesStaffIds) || undertrainingByStaffId.has(staffId)) return;
 
                 const sourceRow = dataS1.find(source =>
                     safeTrim(getS1Value(source, S1_IDX.HIRED_STAFF_NUMBER)) === staffId &&
@@ -3342,11 +3342,13 @@
             const undertrainingRows = getUndertrainingSummaryRows().map(row => [displayBrand(row.brand), row.floor, row.staffId, row.name, row.position]);
             const upcomingRows = getUpcomingOnboardSummaryRows().map(row => [displayBrand(row.brand), row.floor, row.staffId, row.referrerName, row.candidateName, row.position, row.status, row.offerDate, row.onboardDate]);
             const filterOfferRows = NETWORK_TEAM_BRANDS.flatMap(brand => getBrandFilterOfferSummaryRows(brand).map(row => [displayBrand(brand), row.floor, row.referrerStaffId, row.referrerName, row.name, row.position, row.source, row.offerDate, row.onboardDate]));
+            const filteredOutRows = getBrandSummaryFilteredOutRows().map(row => [displayBrand(row.brand), row.floor, row.staffId, row.name, row.position, row.list, row.reason, row.status, row.terminationDate, row.target]);
 
             addSheet('On Sales HC', staffHeaders, onSalesRows, 'FF0F766E');
             addSheet('Undertraining', staffHeaders, undertrainingRows, 'FF7C3AED');
             addSheet('Upcoming On Board', ['Brand', 'Offer Floor', 'Candidate Staff ID', 'Referrer Name', 'Candidate Name', 'Position', 'Status', 'Offer Date', 'On Board Date'], upcomingRows, 'FFD97706');
             addSheet('Filter Offer', ['Brand', 'Referrer Floor', 'Referrer Staff ID', 'Referrer Name', 'Candidate Name', 'Position', 'Source', 'Offer Date', 'On Board Date'], filterOfferRows, 'FFC25A00');
+            addSheet('Filtered Out', ['Brand', 'Floor', 'Staff ID', 'Name', 'Position', 'List', 'Filter Reason', 'Undertraining Status (AG)', 'Termination Date (K)', 'Sales Target'], filteredOutRows, 'FF64748B');
 
             const buffer = await workbook.xlsx.writeBuffer();
             const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -3368,6 +3370,45 @@
         function getUndertrainingValue(row, index) {
             const header = headersUndertraining[index];
             return header ? safeTrim(row?.[header]) : '';
+        }
+
+        function isIncludedUndertrainingRow(row, qualifiedOnSalesStaffIds = getQualifiedOnSalesStaffIds()) {
+            const staffId = getUndertrainingValue(row, UNDERTRAINING_IDX.STAFF_ID);
+            const position = getUndertrainingValue(row, UNDERTRAINING_IDX.POSITION);
+            return !!staffId && !qualifiedOnSalesStaffIds.has(staffId) && !isBeautySpecialistText(position) && !getUndertrainingValue(row, UNDERTRAINING_IDX.STATUS);
+        }
+
+        function getBrandSummaryFilteredOutRows() {
+            const qualifiedOnSalesStaffIds = getQualifiedOnSalesStaffIds();
+            const rows = [];
+            dataOnSales.forEach(row => {
+                const brand = normalizeBrand(getOnSalesValue(row, ON_SALES_IDX.BRAND));
+                if (!NETWORK_TEAM_BRANDS.includes(brand)) return;
+                const staffId = getOnSalesValue(row, ON_SALES_IDX.STAFF_ID);
+                const position = getOnSalesValue(row, ON_SALES_IDX.POSITION);
+                const terminationDate = getOnSalesValue(row, ON_SALES_IDX.TERMINATION_DATE);
+                const target = getOnSalesValue(row, ON_SALES_IDX.TARGET);
+                const reasons = [];
+                if (!staffId) reasons.push('Missing Staff ID');
+                if ((Number(target.replace(/,/g, '')) || 0) <= 0) reasons.push('Sales Target is blank or 0');
+                if (terminationDate) reasons.push('Last / Termination Date is not blank');
+                if (isBeautySpecialistText(position)) reasons.push('Beauty Specialist position');
+                if (reasons.length) rows.push({ brand, floor: getOnSalesValue(row, ON_SALES_IDX.FLOOR) || '-', staffId: staffId || '-', name: getOnSalesValue(row, ON_SALES_IDX.NAME) || '-', position: position || '-', list: 'On Sales HC', reason: reasons.join('; '), status: '', terminationDate, target });
+            });
+            dataUndertraining.forEach(row => {
+                const brand = normalizeBrand(getUndertrainingValue(row, UNDERTRAINING_IDX.BRAND));
+                if (!NETWORK_TEAM_BRANDS.includes(brand)) return;
+                const staffId = getUndertrainingValue(row, UNDERTRAINING_IDX.STAFF_ID);
+                const position = getUndertrainingValue(row, UNDERTRAINING_IDX.POSITION);
+                const status = getUndertrainingValue(row, UNDERTRAINING_IDX.STATUS);
+                const reasons = [];
+                if (!staffId) reasons.push('Missing Staff ID');
+                if (qualifiedOnSalesStaffIds.has(staffId)) reasons.push('Already counted in On Sales HC');
+                if (isBeautySpecialistText(position)) reasons.push('Beauty Specialist position');
+                if (status) reasons.push('Undertraining Status (AG) is not blank');
+                if (reasons.length) rows.push({ brand, floor: getUndertrainingValue(row, UNDERTRAINING_IDX.FLOOR) || '-', staffId: staffId || '-', name: getUndertrainingValue(row, UNDERTRAINING_IDX.NAME) || '-', position: position || '-', list: 'Undertraining', reason: reasons.join('; '), status, terminationDate: '', target: '' });
+            });
+            return rows.sort((a, b) => a.brand.localeCompare(b.brand) || a.list.localeCompare(b.list) || a.name.localeCompare(b.name, 'zh-HK'));
         }
 
         // Match HC.html Brand Summary: only a blank K-column termination field
@@ -3403,7 +3444,7 @@
                 const brand = normalizeBrand(getUndertrainingValue(row, UNDERTRAINING_IDX.BRAND));
                 const staffId = getUndertrainingValue(row, UNDERTRAINING_IDX.STAFF_ID);
                 const position = getUndertrainingValue(row, UNDERTRAINING_IDX.POSITION);
-                if (staffIdsByBrand.has(brand) && staffId && !onSalesStaffIds.has(staffId) && !isBeautySpecialistText(position)) {
+                if (staffIdsByBrand.has(brand) && isIncludedUndertrainingRow(row, onSalesStaffIds)) {
                     staffIdsByBrand.get(brand).add(staffId);
                 }
             });
@@ -3435,7 +3476,7 @@
                 const brand = normalizeBrand(getUndertrainingValue(row, UNDERTRAINING_IDX.BRAND));
                 const staffId = getUndertrainingValue(row, UNDERTRAINING_IDX.STAFF_ID);
                 const position = getUndertrainingValue(row, UNDERTRAINING_IDX.POSITION);
-                if ((selectedBrand && brand !== selectedBrand) || !NETWORK_TEAM_BRANDS.includes(brand) || !staffId || qualifiedOnSalesIds.has(staffId) || isBeautySpecialistText(position) || byStaffId.has(staffId)) return;
+                if ((selectedBrand && brand !== selectedBrand) || !NETWORK_TEAM_BRANDS.includes(brand) || !isIncludedUndertrainingRow(row, qualifiedOnSalesIds) || byStaffId.has(staffId)) return;
                 byStaffId.set(staffId, {
                     brand,
                     staffId,
