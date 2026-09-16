@@ -987,7 +987,7 @@
         // Lead Date = B,C,D -> CV Date(35) / Offer Date = P,Q,R -> Offer Date(36) / On board Date = T,U,V -> Onboard Date(37)
         const S1_DATE_SRC = { LEAD: [1, 2, 3], OFFER: [15, 16, 17], ONBOARD: [19, 20, 21] };
         const S2_IDX = { BRAND: 0, FLOOR: 1, PIC: 2, POS: 3, STAFF_ID: 4, NAME: 5, RESIGN: 9, OFFER: 13, SHOULD: 15, ONBOARD: 14, GAP: 17, NJ_OFFER: 21 };
-        const ON_SALES_IDX = { BRAND: 0, FLOOR: 1, NAME: 4, STAFF_ID: 5, POSITION: 9, TARGET: 12 };
+        const ON_SALES_IDX = { BRAND: 0, FLOOR: 1, NAME: 4, STAFF_ID: 5, POSITION: 9, TERMINATION_DATE: 10, TARGET: 12 };
         const UNDERTRAINING_IDX = { STAFF_ID: 2, NAME: 3, BRAND: 7, FLOOR: 8, POSITION: 9 };
 
         // Month card color mapping
@@ -3520,7 +3520,8 @@
                 const staffId = getReportOnSalesValue(row, ON_SALES_IDX.STAFF_ID);
                 const target = Number(getReportOnSalesValue(row, ON_SALES_IDX.TARGET).replace(/,/g, '')) || 0;
                 const position = getReportOnSalesValue(row, ON_SALES_IDX.POSITION);
-                if (staffId && target !== 0 && !isBeautySpecialistText(position)) ids.add(staffId);
+                const terminationDate = getReportOnSalesValue(row, ON_SALES_IDX.TERMINATION_DATE);
+                if (staffId && target > 0 && !terminationDate && !isBeautySpecialistText(position)) ids.add(staffId);
             });
             return ids;
         }
