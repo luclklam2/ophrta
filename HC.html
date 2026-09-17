@@ -65,7 +65,7 @@ function candidateLeadDate(r){return txt(Object.values(r)[35])}
 // lookup remains as a fallback for source-layout changes.
 function candidateOfferDate(r){const values=Object.values(r||{}),actual=txt(values[36]);if(actual)return actual;const matches=Object.entries(r||{}).filter(([header])=>/^offerdate\d*$/.test(key(header))).map(([,value])=>txt(value)).filter(Boolean);return matches[matches.length-1]||''}
 function candidateOnboardStatus(r){return txt(Object.values(r)[27])}
-function validOffer(r){const status=upper(candidateStatus(r)),onboardStatus=upper(candidateOnboardStatus(r));return !!date(candidateOfferDate(r))&&!isBs(candidatePosition(r))&&!/REJECT|WITHDRAW|NO\s*SHOW|NOSHOW/.test(`${status} ${onboardStatus}`)}
+function validOffer(r){const status=upper(candidateStatus(r)),onboardStatus=upper(candidateOnboardStatus(r));return !!date(candidateOfferDate(r))&&status.includes('ACCEPT')&&!isBs(candidatePosition(r))&&!/REJECT|WITHDRAW|NO\s*SHOW|NOSHOW/.test(`${status} ${onboardStatus}`)}
 function isOnboard(r){return validOffer(r)&&upper(candidateOnboardStatus(r)).includes('ONBOARD')}
 function isDateInRange(raw,startId,endId){const value=date(raw),start=date(document.getElementById(startId)?.value),end=date(document.getElementById(endId)?.value);if(!value)return false;if(start&&value<start)return false;if(end){end.setHours(23,59,59,999);if(value>end)return false}return true}
 function recruiterBrandName(brand){const value=upper(brand);return value==='OS'||value==='WELLNESS'?'OS & Wellness':txt(brand)}
