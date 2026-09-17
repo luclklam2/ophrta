@@ -198,61 +198,98 @@
             white-space: normal;
         }
 
-        /* Four visual reading zones: team profile, sales pipeline, onboarding pipeline, and capacity gap. */
+        /* Five visual reading zones: team profile, current HC, sales pipeline, onboarding pipeline, and capacity gap. */
         #leaderOnlyTable th:nth-child(4),
         #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(4) {
-            border-right: 2px solid #cbd5e1;
+            border-right: 2px solid #94a3b8;
         }
 
+        #leaderOnlyTable th:nth-child(5),
+        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(5),
         #leaderOnlyTable th:nth-child(8),
         #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(8),
         #leaderOnlyTable th:nth-child(10),
         #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(10) {
-            border-right: 2px solid #cbd5e1;
+            border-right: 2px solid #94a3b8;
         }
 
-        #leaderOnlyTable th:nth-child(n+5):nth-child(-n+8) {
-            background: #fff7ed;
+        #leaderOnlyTable th:nth-child(-n+4) {
+            background: #e0f2fe;
+            color: #0c4a6e;
+        }
+
+        #leaderOnlyTable th:nth-child(5) {
+            background: #ccfbf1;
+            color: #134e4a;
+        }
+
+        #leaderOnlyTable th:nth-child(n+6):nth-child(-n+8) {
+            background: #ffedd5;
+            color: #9a3412;
         }
 
         #leaderOnlyTable th:nth-child(n+9):nth-child(-n+10) {
-            background: #f5f3ff;
+            background: #ede9fe;
+            color: #5b21b6;
         }
 
         #leaderOnlyTable th:nth-child(n+11) {
-            background: #fff1f2;
+            background: #ffe4e6;
+            color: #9f1239;
         }
 
-        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(n+5):nth-child(-n+8) {
-            background: rgba(255, 251, 235, 0.42);
+        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(-n+4) {
+            background: rgba(240, 249, 255, 0.52);
+        }
+
+        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(5) {
+            background: rgba(240, 253, 250, 0.78);
+        }
+
+        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(n+6):nth-child(-n+8) {
+            background: rgba(255, 247, 237, 0.76);
         }
 
         #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(n+9):nth-child(-n+10) {
-            background: rgba(245, 243, 255, 0.55);
+            background: rgba(245, 243, 255, 0.84);
         }
 
         #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(n+11) {
-            background: rgba(255, 241, 242, 0.38);
+            background: rgba(255, 241, 242, 0.76);
         }
 
         /* The Total label spans the first three logical columns, so use its
            physical cells to keep zone dividers aligned with the data rows. */
         #leaderOnlyTable tbody tr.leader-only-total td:nth-child(2),
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(3),
         #leaderOnlyTable tbody tr.leader-only-total td:nth-child(6),
         #leaderOnlyTable tbody tr.leader-only-total td:nth-child(8) {
-            border-right: 2px solid #cbd5e1;
+            border-right: 2px solid #94a3b8;
         }
 
-        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+3):nth-child(-n+6) {
-            background: rgba(255, 247, 237, 0.72);
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(-n+2) {
+            background: #e0f2fe;
+            color: #0c4a6e;
+        }
+
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(3) {
+            background: #ccfbf1;
+            color: #134e4a;
+        }
+
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+4):nth-child(-n+6) {
+            background: #ffedd5;
+            color: #9a3412;
         }
 
         #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+7):nth-child(-n+8) {
-            background: rgba(245, 243, 255, 0.76);
+            background: #ede9fe;
+            color: #5b21b6;
         }
 
         #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+9) {
-            background: rgba(255, 241, 242, 0.68);
+            background: #ffe4e6;
+            color: #9f1239;
         }
 
         input, select {
@@ -709,6 +746,7 @@
             </div>
             <div class="mb-3 flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.13em]">
                 <span class="rounded-full bg-sky-100 px-3 py-1.5 text-sky-800">Team profile</span>
+                <span class="rounded-full bg-blue-100 px-3 py-1.5 text-blue-800">On Sales HC</span>
                 <span class="rounded-full bg-amber-100 px-3 py-1.5 text-amber-800">On sales pipeline</span>
                 <span class="rounded-full bg-violet-100 px-3 py-1.5 text-violet-800">Onboarding pipeline</span>
                 <span class="rounded-full bg-rose-100 px-3 py-1.5 text-rose-800">Capacity gap</span>
