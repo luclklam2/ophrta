@@ -198,45 +198,60 @@
             white-space: normal;
         }
 
-        /* Three visual reading zones: team profile, pipeline, and capacity gap. */
+        /* Four visual reading zones: team profile, sales pipeline, onboarding pipeline, and capacity gap. */
         #leaderOnlyTable th:nth-child(4),
         #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(4) {
             border-right: 2px solid #cbd5e1;
         }
 
-        #leaderOnlyTable th:nth-child(9),
-        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(9) {
+        #leaderOnlyTable th:nth-child(8),
+        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(8),
+        #leaderOnlyTable th:nth-child(10),
+        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(10) {
             border-right: 2px solid #cbd5e1;
         }
 
-        #leaderOnlyTable th:nth-child(n+5):nth-child(-n+9) {
+        #leaderOnlyTable th:nth-child(n+5):nth-child(-n+8) {
             background: #fff7ed;
         }
 
-        #leaderOnlyTable th:nth-child(n+10) {
+        #leaderOnlyTable th:nth-child(n+9):nth-child(-n+10) {
+            background: #f5f3ff;
+        }
+
+        #leaderOnlyTable th:nth-child(n+11) {
             background: #fff1f2;
         }
 
-        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(n+5):nth-child(-n+9) {
+        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(n+5):nth-child(-n+8) {
             background: rgba(255, 251, 235, 0.42);
         }
 
-        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(n+10) {
+        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(n+9):nth-child(-n+10) {
+            background: rgba(245, 243, 255, 0.55);
+        }
+
+        #leaderOnlyTable tbody tr:not(.leader-only-total) td:nth-child(n+11) {
             background: rgba(255, 241, 242, 0.38);
         }
 
         /* The Total label spans the first three logical columns, so use its
            physical cells to keep zone dividers aligned with the data rows. */
         #leaderOnlyTable tbody tr.leader-only-total td:nth-child(2),
-        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(7) {
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(6),
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(8) {
             border-right: 2px solid #cbd5e1;
         }
 
-        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+3):nth-child(-n+7) {
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+3):nth-child(-n+6) {
             background: rgba(255, 247, 237, 0.72);
         }
 
-        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+8) {
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+7):nth-child(-n+8) {
+            background: rgba(245, 243, 255, 0.76);
+        }
+
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+9) {
             background: rgba(255, 241, 242, 0.68);
         }
 
@@ -694,7 +709,8 @@
             </div>
             <div class="mb-3 flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.13em]">
                 <span class="rounded-full bg-sky-100 px-3 py-1.5 text-sky-800">Team profile</span>
-                <span class="rounded-full bg-amber-100 px-3 py-1.5 text-amber-800">Pipeline</span>
+                <span class="rounded-full bg-amber-100 px-3 py-1.5 text-amber-800">On sales pipeline</span>
+                <span class="rounded-full bg-violet-100 px-3 py-1.5 text-violet-800">Onboarding pipeline</span>
                 <span class="rounded-full bg-rose-100 px-3 py-1.5 text-rose-800">Capacity gap</span>
             </div>
             <div class="table-shell">
