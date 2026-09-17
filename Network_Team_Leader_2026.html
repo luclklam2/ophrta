@@ -292,6 +292,14 @@
             color: #9f1239;
         }
 
+        #leaderOnlyTable tbody tr.leader-floor-start td {
+            border-top: 2px solid #dbeafe;
+        }
+
+        #leaderOnlyTable tbody tr.leader-floor-start:first-child td {
+            border-top: 0;
+        }
+
         input, select {
             font-size: 0.94rem;
             line-height: 1.25;
@@ -3182,10 +3190,12 @@
                 idealGap: sum.idealGap + (row.idealGap == null ? 0 : row.idealGap)
             }), { target: 0, hasMissingTarget: false, onSalesHc: 0, lead: 0, offer: 0, onboard: 0, undertraining: 0, upcomingOnboard: 0, actualGap: 0, idealGap: 0 });
 
-            body.innerHTML = rows.map(row => {
+            const showFloorGroups = leaderOnlySortKey === 'floorLabel';
+            body.innerHTML = rows.map((row, index) => {
                 const keyAttr = String(row.key || '').replace(/'/g, "\\'");
+                const isNewFloorGroup = showFloorGroups && (index === 0 || row.floorLabel !== rows[index - 1].floorLabel);
                 return `
-                    <tr class="clickable-row cursor-pointer" onclick="focusLeader('${keyAttr}')">
+                    <tr class="clickable-row cursor-pointer ${isNewFloorGroup ? 'leader-floor-start' : ''}" onclick="focusLeader('${keyAttr}')">
                         <td class="w-[150px] px-3 py-2.5 font-bold text-slate-600 whitespace-nowrap">${escapeHtml(row.floorLabel || '-')}</td>
                         <td class="min-w-[180px] px-3 py-2.5 font-black text-slate-900 whitespace-nowrap">${escapeHtml(row.name || '-')}</td>
                         <td class="px-2 py-2.5 text-center font-bold text-slate-600">${escapeHtml(row.position || '-')}</td>
