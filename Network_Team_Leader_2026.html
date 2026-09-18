@@ -1,5 +1,7 @@
 
 
+
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -846,7 +848,7 @@
             <p class="mt-3 rounded-xl bg-slate-50 px-4 py-3 text-xs font-bold leading-relaxed text-slate-600">
                 <span class="font-black text-rose-700">Actual Gap</span> = On Sales HC − Team Target &nbsp;•&nbsp;
                 <span class="font-black text-emerald-700">Ideal Gap</span> = On Sales HC + Under-training + Upcoming On Board − Team Target
-                <span class="block mt-1 text-slate-500">Team Target is the sum of every mapped team member's Position Target (Target sheet: column U → column V).</span>
+                <span class="block mt-1 text-slate-500">Each Network Team has one fixed Team Target of 7. It does not increase when more members are mapped to the team.</span>
             </p>
             <div id="leaderUndertrainingDetails" class="hidden mt-4 rounded-2xl border border-violet-200 bg-violet-50/60 p-4">
                 <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
@@ -3089,12 +3091,10 @@
                 const memberStaffIds = new Set(teamMembers.map(member => safeTrim(member.staffNo)).filter(Boolean));
                 const onSalesHc = Array.from(memberStaffIds).filter(staffId => qualifiedOnSalesStaffIds.has(staffId)).length;
                 const undertraining = getLeaderUndertrainingRows(leader, qualifiedOnSalesStaffIds).length;
-                const teamPositions = Array.from(memberStaffIds).map(staffId =>
-                    onSalesPositionByStaffId.get(staffId) || undertrainingPositionByStaffId.get(staffId) || ''
-                ).filter(Boolean);
-                const teamTargets = teamPositions.map(getLeaderPositionTarget).filter(target => target != null);
                 const position = 'Team Total';
-                const target = teamTargets.length ? teamTargets.reduce((sum, value) => sum + value, 0) : null;
+                // One Network Team always carries a fixed target of 7.
+                // Member headcount must not multiply the target.
+                const target = 7;
                 return {
                     key: leader.key,
                     name: leader.name,
