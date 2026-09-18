@@ -1,4 +1,8 @@
 
+
+
+
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -315,36 +319,36 @@
             background: rgba(255, 241, 242, 0.76);
         }
 
-        /* The Total label spans the first three logical columns, so use its
+        /* The Total label spans the first two logical columns, so use its
            physical cells to keep zone dividers aligned with the data rows. */
-        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(2),
         #leaderOnlyTable tbody tr.leader-only-total td:nth-child(3),
-        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(6),
-        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(8) {
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(4),
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(7),
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(9) {
             border-right: 2px solid #94a3b8;
         }
 
-        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(-n+2) {
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(-n+3) {
             background: #e0f2fe;
             color: #0c4a6e;
         }
 
-        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(3) {
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(4) {
             background: #ccfbf1;
             color: #134e4a;
         }
 
-        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+4):nth-child(-n+6) {
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+5):nth-child(-n+7) {
             background: #ffedd5;
             color: #9a3412;
         }
 
-        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+7):nth-child(-n+8) {
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+8):nth-child(-n+9) {
             background: #ede9fe;
             color: #5b21b6;
         }
 
-        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+9) {
+        #leaderOnlyTable tbody tr.leader-only-total td:nth-child(n+10) {
             background: #ffe4e6;
             color: #9f1239;
         }
@@ -825,7 +829,7 @@
                             <tr>
                                 <th class="w-[150px] px-3 py-3 text-left">Floor</th>
                                 <th class="min-w-[180px] px-3 py-3 text-left">Network Team Leader</th>
-                                <th class="px-2 py-3 text-center">Scope</th>
+                                <th class="px-2 py-3 text-center">Team Size</th>
                                 <th class="px-2 py-3 text-center">Team Target</th>
                                 <th class="px-2 py-3 text-center">On Sales HC</th>
                                 <th class="px-2 py-3 text-center">Lead</th>
@@ -2855,7 +2859,7 @@
             const headers = [
                 { key: 'floorLabel', label: 'Floor', align: 'left' },
                 { key: 'networkTeam', label: 'Network Team Leader', align: 'left' },
-                { key: 'position', label: 'Scope', align: 'center' },
+                { key: 'teamSize', label: 'Team Size', align: 'center' },
                 { key: 'target', label: 'Team Target', align: 'center' },
                 { key: 'onSalesHc', label: 'On Sales HC', align: 'center' },
                 { key: 'lead', label: 'Lead', align: 'center' },
@@ -3088,7 +3092,7 @@
                 const memberStaffIds = new Set(teamMembers.map(member => safeTrim(member.staffNo)).filter(Boolean));
                 const onSalesHc = Array.from(memberStaffIds).filter(staffId => qualifiedOnSalesStaffIds.has(staffId)).length;
                 const undertraining = getLeaderUndertrainingRows(leader, qualifiedOnSalesStaffIds).length;
-                const position = 'Team Total';
+                const teamSize = teamMembers.length;
                 // One Network Team always carries a fixed target of 7.
                 // Member headcount must not multiply the target.
                 const target = 7;
@@ -3097,7 +3101,7 @@
                     name: leader.name,
                     brandLabel,
                     floorLabel,
-                    position,
+                    teamSize,
                     target,
                     onSalesHc,
                     lead,
@@ -3119,8 +3123,8 @@
                     return row.brandLabel || '';
                 case 'floorLabel':
                     return row.floorLabel || '';
-                case 'position':
-                    return row.position || '';
+                case 'teamSize':
+                    return row.teamSize || 0;
                 case 'target':
                     return row.target == null ? -Infinity : row.target;
                 case 'onSalesHc':
@@ -3238,6 +3242,7 @@
             }
 
             const totals = rows.reduce((sum, row) => ({
+                teamSize: sum.teamSize + row.teamSize,
                 target: sum.target + (row.target == null ? 0 : row.target),
                 hasMissingTarget: sum.hasMissingTarget || row.target == null,
                 onSalesHc: sum.onSalesHc + row.onSalesHc,
@@ -3248,7 +3253,7 @@
                 upcomingOnboard: sum.upcomingOnboard + row.upcomingOnboard,
                 actualGap: sum.actualGap + (row.actualGap == null ? 0 : row.actualGap),
                 idealGap: sum.idealGap + (row.idealGap == null ? 0 : row.idealGap)
-            }), { target: 0, hasMissingTarget: false, onSalesHc: 0, lead: 0, offer: 0, onboard: 0, undertraining: 0, upcomingOnboard: 0, actualGap: 0, idealGap: 0 });
+            }), { teamSize: 0, target: 0, hasMissingTarget: false, onSalesHc: 0, lead: 0, offer: 0, onboard: 0, undertraining: 0, upcomingOnboard: 0, actualGap: 0, idealGap: 0 });
 
             const showFloorGroups = leaderOnlySortKey === 'floorLabel';
             body.innerHTML = rows.map((row, index) => {
@@ -3258,7 +3263,7 @@
                     <tr class="clickable-row cursor-pointer ${isNewFloorGroup ? 'leader-floor-start' : ''}" onclick="focusLeader('${keyAttr}')">
                         <td class="w-[150px] px-3 py-2.5 font-bold text-slate-600 whitespace-nowrap">${escapeHtml(row.floorLabel || '-')}</td>
                         <td class="min-w-[180px] px-3 py-2.5 font-black text-slate-900 whitespace-nowrap">${escapeHtml(row.name || '-')}</td>
-                        <td class="px-2 py-2.5 text-center font-bold text-slate-600">${escapeHtml(row.position || '-')}</td>
+                        <td class="px-2 py-2.5 text-center font-black text-slate-700">${formatNumber(row.teamSize)}</td>
                         <td class="px-2 py-2.5 text-center font-black text-slate-700">${row.target == null ? '—' : formatNumber(row.target)}</td>
                         <td class="px-2 py-2.5 text-center font-black text-slate-900">${formatNumber(row.onSalesHc)}</td>
                         <td class="px-2 py-2.5 text-center font-black text-indigo-600">${formatNumber(row.lead)}</td>
@@ -3272,7 +3277,8 @@
                 `;
             }).join('') + `
                 <tr class="leader-only-total bg-sky-50/80 font-black text-slate-900">
-                    <td class="px-2 py-3" colspan="3">Total</td>
+                    <td class="px-2 py-3" colspan="2">Total</td>
+                    <td class="px-2 py-3 text-center text-slate-700">${formatNumber(totals.teamSize)}</td>
                     <td class="px-2 py-3 text-center text-slate-700">${totals.hasMissingTarget ? '—' : formatNumber(totals.target)}</td>
                     <td class="px-2 py-3 text-center">${formatNumber(totals.onSalesHc)}</td>
                     <td class="px-2 py-3 text-center text-indigo-700">${formatNumber(totals.lead)}</td>
