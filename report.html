@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -719,7 +720,7 @@
                     <div>
                         <p class="text-sm font-black text-amber-600">Brand workforce &amp; offer</p>
                         <h3 class="mt-1 text-2xl font-black text-slate-900 md:text-3xl">Brand Summary</h3>
-                        <p class="mt-2 text-sm font-bold text-slate-500">Upcoming On Board includes all accepted offers with a future On Board Date. Brackets use the Offer Date range above.</p>
+                        <p class="mt-2 text-sm font-bold text-slate-500">Upcoming On Board includes every accepted candidate whose On Board Date is after today, excluding Withdraw, Reject and No Show. The bracketed MTD figure follows the Offer Date filter.</p>
                     </div>
                     <div class="flex flex-wrap items-end gap-3">
                         <label class="min-w-[190px] text-sm font-black text-slate-600">Upcoming Offer Source
@@ -741,7 +742,7 @@
                 </div>
                 <div class="overflow-x-auto rounded-2xl border border-slate-200">
                     <table class="min-w-[920px] w-full border-collapse">
-                        <thead class="bg-amber-50 text-sm font-black text-amber-950"><tr><th class="px-5 py-4 text-left">Brand</th><th class="px-4 py-4 text-center">Full HC Target</th><th class="px-4 py-4 text-center">On Sales HC</th><th class="px-4 py-4 text-center">On Sales Rate</th><th class="px-4 py-4 text-center">Undertraining</th><th class="px-4 py-4 text-center">Upcoming On Board <span class="block text-[10px] font-bold normal-case text-amber-700/70">(Filter Offer)</span></th><th class="px-4 py-4 text-center">Future Fulfill Rate</th><th class="px-4 py-4 text-center">Gap</th></tr></thead>
+                        <thead class="bg-amber-50 text-sm font-black text-amber-950"><tr><th class="px-5 py-4 text-left">Brand</th><th class="px-4 py-4 text-center">Full HC Target</th><th class="px-4 py-4 text-center">On Sales HC</th><th class="px-4 py-4 text-center">On Sales Rate</th><th class="px-4 py-4 text-center">Undertraining</th><th class="px-4 py-4 text-center">Upcoming On Board <span class="block text-[10px] font-bold normal-case text-amber-700/70">(MTD by Offer Date)</span></th><th class="px-4 py-4 text-center">Future Fulfill Rate</th><th class="px-4 py-4 text-center">Gap</th></tr></thead>
                         <tbody id="reportBrandSummaryBody" class="divide-y divide-slate-100 bg-white text-center"></tbody>
                     </table>
                 </div>
@@ -3577,8 +3578,9 @@
                 const candidateName = String(row?.[headersS1[S1_IDX.NAME]] || '').trim();
                 const identity = `${candidateName}|${offerDate?.getTime() || ''}|${onboardDate?.getTime() || ''}`;
                 if (!allByBrand.has(brand) || !candidateName || isBeautySpecialistPosition(row) || !isReportUpcomingSourceIncluded(row)) return;
-                if (status.includes('ACCEPT') && onboardDate && onboardDate > todayEnd) allByBrand.get(brand).add(identity);
-                if (offerStart && offerEndTs && offerDate && offerDate.getTime() >= offerStart.getTime() && offerDate.getTime() <= offerEndTs && isSearchOfferRow(row)) {
+                const isUpcoming = status.includes('ACCEPT') && !isExcludedPendingOfferRow(row) && onboardDate && onboardDate > todayEnd;
+                if (isUpcoming) allByBrand.get(brand).add(identity);
+                if (isUpcoming && offerStart && offerEndTs && offerDate && offerDate.getTime() >= offerStart.getTime() && offerDate.getTime() <= offerEndTs) {
                     filterOfferByBrand.get(brand).add(identity);
                 }
             });
@@ -3626,7 +3628,7 @@
                 const onboardDate = parseDate(getS1RecordedOnboardDate(row));
                 const candidateName = String(row?.[headersS1[S1_IDX.NAME]] || '').trim();
                 const key = `${brand}|${candidateName}|${offerDate?.getTime() || ''}|${onboardDate?.getTime() || ''}`;
-                if (!REPORT_SUMMARY_BRANDS.includes(brand) || !candidateName || !status.includes('ACCEPT') || !onboardDate || onboardDate <= todayEnd || isBeautySpecialistPosition(row) || !isReportUpcomingSourceIncluded(row) || seen.has(key)) return rows;
+                if (!REPORT_SUMMARY_BRANDS.includes(brand) || !candidateName || !status.includes('ACCEPT') || isExcludedPendingOfferRow(row) || !onboardDate || onboardDate <= todayEnd || isBeautySpecialistPosition(row) || !isReportUpcomingSourceIncluded(row) || seen.has(key)) return rows;
                 seen.add(key);
                 rows.push([brand, String(row?.[headersS1[S1_IDX.HIRED_STAFF_NUMBER]] || '').trim(), candidateName, getS1PositionValue(row), String(row?.[headersS1[5]] || '').trim(), row?.[headersS1[S1_IDX.OFFER_DATE]] || '', getS1RecordedOnboardDate(row), row?.[headersS1[S1_IDX.STATUS]] || '']);
                 return rows;
@@ -3639,13 +3641,16 @@
             if (!start || !end) return [];
             const endTs = new Date(end.getTime()).setHours(23, 59, 59, 999);
             const seen = new Set();
+            const todayEnd = new Date();
+            todayEnd.setHours(23, 59, 59, 999);
             return dataS1.reduce((rows, row) => {
                 const brand = String(row?.[headersS1[S1_IDX.BRAND]] || '').trim().toUpperCase();
                 const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
                 const candidateName = String(row?.[headersS1[S1_IDX.NAME]] || '').trim();
                 const onboardDate = parseDate(getS1RecordedOnboardDate(row));
                 const key = `${brand}|${candidateName}|${offerDate?.getTime() || ''}|${onboardDate?.getTime() || ''}`;
-                if (!REPORT_SUMMARY_BRANDS.includes(brand) || !candidateName || !offerDate || offerDate < start || offerDate > endTs || !isSearchOfferRow(row) || isBeautySpecialistPosition(row) || !isReportUpcomingSourceIncluded(row) || seen.has(key)) return rows;
+                const status = String(row?.[headersS1[S1_IDX.STATUS]] || '').trim().toUpperCase();
+                if (!REPORT_SUMMARY_BRANDS.includes(brand) || !candidateName || !status.includes('ACCEPT') || isExcludedPendingOfferRow(row) || !onboardDate || onboardDate <= todayEnd || !offerDate || offerDate < start || offerDate > endTs || isBeautySpecialistPosition(row) || !isReportUpcomingSourceIncluded(row) || seen.has(key)) return rows;
                 seen.add(key);
                 rows.push([brand, String(row?.[headersS1[S1_IDX.HIRED_STAFF_NUMBER]] || '').trim(), candidateName, getS1PositionValue(row), String(row?.[headersS1[5]] || '').trim(), row?.[headersS1[S1_IDX.OFFER_DATE]] || '', getS1RecordedOnboardDate(row), row?.[headersS1[S1_IDX.STATUS]] || '']);
                 return rows;
