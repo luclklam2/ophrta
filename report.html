@@ -3562,6 +3562,14 @@
             return source === 'OP' || source === 'OPS' || source.includes('OPERATION');
         }
 
+        function parseReportUpcomingOfferDate(rawValue) {
+            const value = String(rawValue || '').trim();
+            if (!value) return null;
+            const native = new Date(value);
+            if (!isNaN(native)) return new Date(native.getFullYear(), native.getMonth(), native.getDate(), 0, 0, 0, 0);
+            return parseDate(value);
+        }
+
         function getReportBrandUpcomingCounts() {
             const allByBrand = new Map(REPORT_SUMMARY_BRANDS.map(brand => [brand, new Set()]));
             const filterOfferByBrand = new Map(REPORT_SUMMARY_BRANDS.map(brand => [brand, new Set()]));
@@ -3573,7 +3581,7 @@
             dataS1.forEach(row => {
                 const brand = String(row?.[headersS1[S1_IDX.BRAND]] || '').trim().toUpperCase();
                 const status = String(row?.[headersS1[S1_IDX.STATUS]] || '').trim().toUpperCase();
-                const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
+                const offerDate = parseReportUpcomingOfferDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
                 const onboardDate = parseDate(getS1RecordedOnboardDate(row));
                 const candidateName = String(row?.[headersS1[S1_IDX.NAME]] || '').trim();
                 const identity = `${candidateName}|${offerDate?.getTime() || ''}|${onboardDate?.getTime() || ''}`;
@@ -3645,7 +3653,7 @@
             todayEnd.setHours(23, 59, 59, 999);
             return dataS1.reduce((rows, row) => {
                 const brand = String(row?.[headersS1[S1_IDX.BRAND]] || '').trim().toUpperCase();
-                const offerDate = parseDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
+                const offerDate = parseReportUpcomingOfferDate(row?.[headersS1[S1_IDX.OFFER_DATE]]);
                 const candidateName = String(row?.[headersS1[S1_IDX.NAME]] || '').trim();
                 const onboardDate = parseDate(getS1RecordedOnboardDate(row));
                 const key = `${brand}|${candidateName}|${offerDate?.getTime() || ''}|${onboardDate?.getTime() || ''}`;

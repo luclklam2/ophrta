@@ -3364,6 +3364,14 @@
             return new Map(NETWORK_TEAM_BRANDS.map(brand => [brand, getBrandFilterOfferSummaryRows(brand, leaders).length]));
         }
 
+        function parseUpcomingOfferDate(rawValue) {
+            const value = safeTrim(rawValue);
+            if (!value) return null;
+            const native = new Date(value);
+            if (!isNaN(native)) return new Date(native.getFullYear(), native.getMonth(), native.getDate(), 0, 0, 0, 0);
+            return parseDate(rawValue);
+        }
+
         function getBrandFilterOfferSummaryRows(brand, leaders = getFilteredLeaders()) {
             const normalizedBrand = normalizeBrand(brand);
             const offerRange = getSelectedOfferDateRange();
@@ -3376,7 +3384,7 @@
             dataS1.forEach(row => {
                 if (normalizeBrand(getS1Value(row, S1_IDX.BRAND)) !== normalizedBrand) return;
                 if (!isUpcomingSourceMatch(row)) return;
-                if (!isDateWithinOptionalRange(parseDate(getS1Value(row, S1_IDX.OFFER_DATE)), offerRange) || !isUpcomingOnboard(row) || isBeautySpecialistPosition(row)) return;
+                if (!isDateWithinOptionalRange(parseUpcomingOfferDate(getS1Value(row, S1_IDX.OFFER_DATE)), offerRange) || !isUpcomingOnboard(row) || isBeautySpecialistPosition(row)) return;
                 const key = getRowIdentity(row);
                 if (seen.has(key)) return;
                 seen.add(key);
