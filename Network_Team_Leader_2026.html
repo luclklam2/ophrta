@@ -1,8 +1,4 @@
 
-
-
-
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -608,7 +604,7 @@
                 <div>
                     <p class="text-sm font-black text-amber-600">Brand workforce & offer</p>
                     <h2 class="text-3xl font-black text-slate-900">Brand Summary</h2>
-                    <p class="mt-2 text-sm font-bold text-slate-500">Click On Sales HC or Undertraining for staff details; click Upcoming On Board or Filter Offer for Candidate Detail.</p>
+                    <p class="mt-2 text-sm font-bold text-slate-500">Upcoming On Board includes every accepted candidate whose On Board Date is after today, excluding Withdraw, Reject and No Show. The bracketed MTD figure follows the Offer Date filter.</p>
                 </div>
                 <div class="flex flex-wrap items-end gap-3">
                     <label class="min-w-[190px] text-sm font-black text-slate-600">
@@ -634,7 +630,7 @@
                                 <th class="px-4 py-4 text-center">On Sales HC</th>
                                 <th class="px-4 py-4 text-center">On Sales Rate</th>
                                 <th class="px-4 py-4 text-center">Undertraining</th>
-                                <th class="px-4 py-4 text-center">Upcoming On Board <span class="block text-[10px] tracking-normal normal-case text-amber-700/70">(Filter Offer)</span></th>
+                                <th class="px-4 py-4 text-center">Upcoming On Board <span class="block text-[10px] tracking-normal normal-case text-amber-700/70">(MTD by Offer Date)</span></th>
                                 <th class="resign-summary-heading px-3 py-4 text-center text-rose-700">Resign</th>
                                 <th class="px-4 py-4 text-center">Future Fulfill Rate</th>
                                 <th class="px-4 py-4 text-center">Gap</th>
@@ -1801,7 +1797,8 @@
 
         function isUpcomingOnboard(row) {
             const status = safeTrim(row?.[headersS1[S1_IDX.STATUS]]);
-            if (!isAcceptedStatus(status)) return false;
+            const onboardStatus = getOnboardStatus(row);
+            if (!isAcceptedStatus(status) || isExcludedPendingOfferRow(row)) return false;
 
             const recordedDate = parseDate(getRecordedOnboardDate(row));
             if (!recordedDate) return false;
@@ -3378,12 +3375,8 @@
             const seen = new Set();
             dataS1.forEach(row => {
                 if (normalizeBrand(getS1Value(row, S1_IDX.BRAND)) !== normalizedBrand) return;
-                const source = safeTrim(getS1Value(row, S1_IDX.SOURCE)).toUpperCase();
-                const isNetworkOffer = networkReferrerNames.has(normalizeKey(getS1ReferrerName(row)));
-                const isHrOffer = source.includes('HR');
-                if (!isNetworkOffer && !isHrOffer) return;
                 if (!isUpcomingSourceMatch(row)) return;
-                if (!isDateWithinOptionalRange(parseDate(getS1Value(row, S1_IDX.OFFER_DATE)), offerRange) || !isCountedOffer(row)) return;
+                if (!isDateWithinOptionalRange(parseDate(getS1Value(row, S1_IDX.OFFER_DATE)), offerRange) || !isUpcomingOnboard(row) || isBeautySpecialistPosition(row)) return;
                 const key = getRowIdentity(row);
                 if (seen.has(key)) return;
                 seen.add(key);
@@ -3795,7 +3788,7 @@
                         <td class="px-4 py-5 text-center data-font text-lg"><button type="button" onclick="showBrandSummaryDetails(${JSON.stringify(brand)}, 'ON_SALES')" class="font-black text-slate-900 underline-offset-4 hover:text-sky-700 hover:underline" title="Show On Sales HC details">${formatNumber(onSalesHc)}</button></td>
                         <td class="px-4 py-5 text-center data-font text-lg font-black text-sky-700">${onSalesRate}</td>
                         <td class="px-4 py-5 text-center data-font text-lg"><button type="button" onclick="showBrandSummaryDetails(${JSON.stringify(brand)}, 'UNDERTRAINING')" class="font-black text-violet-700 underline-offset-4 hover:underline" title="Show Undertraining details">${formatNumber(undertraining)}</button></td>
-                        <td class="px-4 py-5 text-center data-font text-lg"><button type="button" onclick="showBrandSummaryDetails(${JSON.stringify(brand)}, 'UPCOMING')" class="font-black text-amber-700 underline-offset-4 hover:underline" title="Show Upcoming On Board candidate details">${formatNumber(upcomingOnboard)}</button> <button type="button" onclick="showBrandSummaryDetails(${JSON.stringify(brand)}, 'FILTER_OFFER')" class="font-black text-slate-400 underline-offset-4 hover:text-slate-700 hover:underline" title="Show Filter Offer candidate details">(${formatNumber(offer)})</button></td>
+                        <td class="px-4 py-5 text-center data-font text-lg"><button type="button" onclick="showBrandSummaryDetails(${JSON.stringify(brand)}, 'UPCOMING')" class="font-black text-amber-700 underline-offset-4 hover:underline" title="Show Upcoming On Board candidate details">${formatNumber(upcomingOnboard)}</button> <button type="button" onclick="showBrandSummaryDetails(${JSON.stringify(brand)}, 'FILTER_OFFER')" class="font-black text-slate-400 underline-offset-4 hover:text-slate-700 hover:underline" title="Show MTD Upcoming On Board details filtered by Offer Date">(${formatNumber(offer)})</button></td>
                         <td class="resign-summary-cell px-3 py-5 text-center data-font text-lg font-black text-rose-700">${formatNumber(resign)}</td>
                         <td class="px-4 py-5 text-center data-font text-lg font-black text-emerald-700">${futureFulfillRate}</td>
                         <td class="px-4 py-5 text-center data-font text-lg font-black ${gapClass}">${totalTarget ? formatNumber(gap) : '—'}</td>
